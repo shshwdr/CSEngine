@@ -28,7 +28,7 @@ void CSDevice::InitDevice(HDC hdc, int screenWidtch, int screenHeight) {
 
 
 ////https://zhuanlan.zhihu.com/p/20213658
-void CSDevice::DrawLine(int x0, int y0, int x1, int y1)
+void CSDevice::DrawLine(int x0, int y0, int x1, int y1,CSColor c)
 {
 	//Bresenham with division
 	//e = old_e - 0.5  we only need to check e > 0
@@ -52,7 +52,7 @@ void CSDevice::DrawLine(int x0, int y0, int x1, int y1)
 	if (dx > dy) {
 		errorValue =  - dx;
 		for (int i = 0;i <= dx;i++) {
-			DrawPixel(x0, y0);
+			DrawPixel(x0, y0,c);
 			x0 += stepx;
 			errorValue += dy2;
 			if (errorValue >= 0) {
@@ -64,7 +64,7 @@ void CSDevice::DrawLine(int x0, int y0, int x1, int y1)
 	else {
 		errorValue = -dy;
 		for (int i = 0;i <= dy;i++) {
-			DrawPixel(x0, y0);
+			DrawPixel(x0, y0,c);
 			y0 += stepy;
 			errorValue += dx2;
 			if (errorValue >= 0) {
@@ -76,7 +76,7 @@ void CSDevice::DrawLine(int x0, int y0, int x1, int y1)
 }
 
 
-inline void CSDevice::DrawPixel(int x, int y)
+inline void CSDevice::DrawPixel(int x, int y, CSColor c)
 {
-	SetPixel(screenHDC, x, y, RGB(255, 0, 0));
+	SetPixel(screenHDC, x, y, RGB(255 * c.r, 255 * c.g, 255 * c.b));
 }
