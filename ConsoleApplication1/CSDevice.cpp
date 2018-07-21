@@ -3,6 +3,7 @@
 #include <assert.h>
 #include "CSDevice.h"
 #include "CSMatrix.h"
+#include "CSVector3.h"
 
 
 CSDevice::CSDevice() {}
@@ -135,3 +136,7 @@ inline void CSDevice::DrawPixel(int x, int y, CSColor c = CSColor::red())
 }
 
 //MVP
+//CSMatrix CSDevice::GenScaleMatrix(const CSVector3& v) {
+//	CSMatrix m = CSMatrix::Identity();
+//	return m;
+//}

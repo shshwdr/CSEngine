@@ -28,7 +28,7 @@ CSMatrix CSMatrix::operator + (const CSMatrix& right) const {
 	CSMatrix m;
 	for (int i = 0;i < 4;i++) {
 		for (int j = 0;j < 4;j++) {
-			m.value[i][j] = this->value[i][j] + right.value[i][j];
+			m.value[i][j] = value[i][j] + right.value[i][j];
 		}
 	}
 	return m;
@@ -37,7 +37,7 @@ CSMatrix CSMatrix::operator - (const CSMatrix& right) const {
 	CSMatrix m;
 	for (int i = 0;i < 4;i++) {
 		for (int j = 0;j < 4;j++) {
-			m.value[i][j] = this->value[i][j] - right.value[i][j];
+			m.value[i][j] = value[i][j] - right.value[i][j];
 		}
 	}
 	return m;
@@ -47,7 +47,7 @@ CSMatrix CSMatrix::operator * (const CSMatrix& right) const {
 	for (int i = 0;i < 4;i++) {
 		for (int j = 0;j < 4;j++) {
 			for (int k = 0;k < 4;k++) {
-				m.value[i][j] += this->value[i][k] * right.value[k][j];
+				m.value[i][j] += value[i][k] * right.value[k][j];
 			}
 		}
 	}
@@ -57,7 +57,7 @@ CSMatrix CSMatrix::operator * (float k) const {
 	CSMatrix m;
 	for (int i = 0;i < 4;i++) {
 		for (int j = 0;j < 4;j++) {
-			m.value[i][j] = this->value[i][j] * k;
+			m.value[i][j] = value[i][j] * k;
 		}
 	}
 	return m;
