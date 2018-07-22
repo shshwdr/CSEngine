@@ -23,6 +23,7 @@ public:
 	CSDevice();
 	~CSDevice();
 	void InitDevice(HDC hdc, int screenWidtch, int screenHeight);
+	void Clear();
 	void DrawLine(int x0, int y0, int x1, int y1, CSColor c);
 	void DrawTriangle(int x0, int y0, int x1, int y1, int x2, int y2, CSColor c = CSColor::red());
 	void DrawPixel(int x0, int y0, CSColor c);
@@ -33,4 +34,8 @@ public:
 	CSMatrix GenTranslateMatrix(const CSVector3& v);
 	CSMatrix GenCameraMatrix(const CSVector3& eyePos, const CSVector3& lookPos, const CSVector3& upAxis = CSVector3(0, 1, 0));
 	CSMatrix GenProjectionMatrix(float fov, float aspect, float nearPlane, float farPlane);
+	CSVector3 GetScreenCoord(const CSVector3& v);
+	CSMatrix GetMVPMatrix();
+	void DrawTrangle3D(const CSVector3& v1, const CSVector3& v2, const CSVector3& v3, const CSMatrix& mvp);
+	//inline bool SimpleCVVCullCheck(const Vertex& vertex) { return true; }
 };

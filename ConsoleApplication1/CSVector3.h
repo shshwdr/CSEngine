@@ -1,18 +1,21 @@
 #pragma once
 #include <iostream>
+#include "CSMatrix.h"
 class CSVector3
 {
 public:
 	//w = 1 means vector is a point
 	//w = 0 means vector is a vector, transform won't change vector
 	float x, y, z, w;
-	CSVector3(float fx, float fy, float fz) :x(fx), y(fy), z(fz) {}
+	CSVector3(float fx, float fy, float fz,float fw) :x(fx), y(fy), z(fz),w(fw) {}
+	CSVector3(float fx, float fy, float fz) :x(fx), y(fy), z(fz), w(1) {};
 	~CSVector3();
 
 	CSVector3 operator + (const CSVector3& right) const;
 	CSVector3 operator - (const CSVector3& right) const;
 	CSVector3 operator * (float v) const;
 	CSVector3 operator / (float v) const;
+	CSVector3 operator * (const CSMatrix& m) const;
 
 	void Normalize();
 

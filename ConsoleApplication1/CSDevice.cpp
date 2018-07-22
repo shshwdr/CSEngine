@@ -3,12 +3,20 @@
 #include <assert.h>
 #include "CSDevice.h"
 #include "CSMathUtil.h"
+#include <ctime>
+#include <windows.h>
 
 
 CSDevice::CSDevice() {}
 CSDevice::~CSDevice() {}
-void CSDevice::InitDevice(HDC hdc, int screenWidtch, int screenHeight) {
+void CSDevice::InitDevice(HDC hdc, int w, int h) {
 	screenHDC = hdc;
+	deviceWidth = w;
+	deviceHeight = h;
+}
+
+void CSDevice::Clear() {
+	BitBlt(screenHDC, 0, 0, deviceWidth, deviceHeight, NULL, NULL, NULL, BLACKNESS);
 }
 
 //void CSDevice::DrawLine_outdated(int x0, int y0, int x1, int y1)
@@ -200,7 +208,7 @@ CSMatrix CSDevice::GenCameraMatrix(const CSVector3& eyePos, const CSVector3& loo
 	m.value[0][0] = V.x; m.value[0][1] = U.x;m.value[0][2] = N.x;
 	m.value[1][0] = V.y; m.value[1][1] = U.y;m.value[1][2] = N.y;
 	m.value[2][0] = V.z; m.value[2][1] = U.z;m.value[2][2] = N.z;
-	m.value[3][0] = transX; m.value[3][1] = transX;m.value[3][2] = transX;m.value[3][3] = 1;
+	m.value[3][0] = transX; m.value[3][1] = transY;m.value[3][2] = transZ;m.value[3][3] = 1;
 	return m;
 }
 //return NDC(normalized device coordinates) for different resolution
@@ -221,4 +229,35 @@ CSMatrix CSDevice::GenProjectionMatrix(float fov, float aspect, float nearPlane,
 	m.value[3][2] = -nearPlane * farPlane / (farPlane - nearPlane);
 	m.value[2][3] = 1;
 	return m;
+}
+//x:(-1,1)  to (0,width)
+//y:(-1,1) to (height,0)
+CSVector3 CSDevice::GetScreenCoord(const CSVector3& v) {
+	float reciprocalW = 1.0f / v.w;
+	float x = (v.x*reciprocalW + 1.0f)*0.5f*deviceWidth;
+	float y = (1.0 - v.y*reciprocalW) * 0.5*deviceHeight;
+	float z = 1 / v.z;
+	return CSVector3(x, y, z);
+}
+CSMatrix CSDevice::GetMVPMatrix() {
+
+	float currentTime =  timeGetTime()*0.001f;
+	float rotation = sin(currentTime)*CSMathUtil::PI_F;
+	CSMatrix scaleM = GenScaleMatrix(CSVector3(1, 1, 1));
+	CSMatrix rotM = GenRotateMatrix(CSVector3(0, rotation, 0));
+	CSMatrix transM =GenTranslateMatrix(CSVector3(0, 0, 0));
+	CSMatrix worldM = scaleM * rotM*transM;
+	CSMatrix cameraM = GenCameraMatrix(CSVector3(0, 0, -5), CSVector3(0, 0, 0));
+	CSMatrix projM = GenProjectionMatrix(60, (float)deviceWidth / deviceHeight, 0.1f, 30);
+	return worldM * cameraM*projM;
+
+}
+void CSDevice::DrawTrangle3D(const CSVector3& v1, const CSVector3& v2, const CSVector3& v3, const CSMatrix& mvp) {
+	CSVector3 vs1 = v1 * mvp;
+	CSVector3 vs2 = v2 * mvp;
+	CSVector3 vs3 = v3 * mvp;
+	CSVector3 ve1 = GetScreenCoord(vs1);
+	CSVector3 ve2 = GetScreenCoord(vs2);
+	CSVector3 ve3 = GetScreenCoord(vs3);
+	DrawTriangle(ve1.x, ve1.y, ve2.x, ve2.y, ve3.x, ve3.y);
 }
