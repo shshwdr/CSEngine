@@ -20,7 +20,7 @@ CSVector3 CSVector3::operator * (float v) const {
 	return res;
 }
 CSVector3 CSVector3::operator / (float v) const {
-	CSVector3 res(x /v, y /v, z /v);
+	CSVector3 res(x / v, y / v, z / v);
 	return res;
 }
 
@@ -45,11 +45,12 @@ CSVector3 CSVector3::Cross(const CSVector3& left, const CSVector3& right) {
 	CSVector3 res(left.y*right.z - left.z*right.y, left.z*right.x - left.x*right.z, left.x*right.y - left.y*right.x);
 	return res;
 }
+
 inline CSVector3 CSVector3::Lerp(const CSVector3& left, const CSVector3& right, float t) {
 	return left + (right - left)*t;
 }
 
 std::ostream& operator<<(std::ostream& os, const CSVector3& v) {
-	os <<"("<<v.x<<", "<<v.y<<", "<<v.z<<")"<< std::endl;
+	os << "(" << v.x << ", " << v.y << ", " << v.z << ")" << std::endl;
 	return os;
 }

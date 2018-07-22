@@ -15,7 +15,7 @@ public:
 	CSVector3 operator / (float v) const;
 
 	void Normalize();
-	
+
 	float SquareMagnitude();
 	float Magnitude();
 

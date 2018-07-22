@@ -63,7 +63,7 @@ CSMatrix CSMatrix::operator * (float k) const {
 	return m;
 }
 
-void CSMatrix::Transpose() { 
+void CSMatrix::Transpose() {
 	for (int i = 0;i < 4;i++) {
 		for (int j = 0;j < 4;j++) {
 			std::swap(value[i][j], value[j][i]);

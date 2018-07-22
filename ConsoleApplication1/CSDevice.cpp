@@ -48,13 +48,13 @@ void CSDevice::DrawLine(int x0, int y0, int x1, int y1, CSColor c = CSColor::red
 		stepy = -1;
 		dy = -dy;
 	}
-	int dx2 = dx<<1;
-	int dy2 = dy<<1;
+	int dx2 = dx << 1;
+	int dy2 = dy << 1;
 	float errorValue = 0;
 	if (dx > dy) {
-		errorValue =  - dx;
+		errorValue = -dx;
 		for (int i = 0;i <= dx;i++) {
-			DrawPixel(x0, y0,c);
+			DrawPixel(x0, y0, c);
 			x0 += stepx;
 			errorValue += dy2;
 			if (errorValue >= 0) {
@@ -66,7 +66,7 @@ void CSDevice::DrawLine(int x0, int y0, int x1, int y1, CSColor c = CSColor::red
 	else {
 		errorValue = -dy;
 		for (int i = 0;i <= dy;i++) {
-			DrawPixel(x0, y0,c);
+			DrawPixel(x0, y0, c);
 			y0 += stepy;
 			errorValue += dx2;
 			if (errorValue >= 0) {
@@ -81,7 +81,7 @@ void CSDevice::DrawBottomFlatTriangle(int x0, int y0, int x1, int y1, int x2, in
 	for (int y = y0;y <= y1;y++) {
 		int xl = (x1 - x0)*(y - y0) / (y1 - y0) + x0;
 		int xr = (x2 - x0)*(y - y0) / (y2 - y0) + x0;
-		DrawLine(xl, y, xr, y,c);
+		DrawLine(xl, y, xr, y, c);
 	}
 }
 //(x2,y2) is the bottom
@@ -89,7 +89,7 @@ void CSDevice::DrawTopFlatTriangle(int x0, int y0, int x1, int y1, int x2, int y
 	for (int y = y0;y <= y2;y++) {
 		int xl = (x1 - x2)*(y - y2) / (y1 - y2) + x2;
 		int xr = (x0 - x2)*(y - y2) / (y0 - y2) + x2;
-		DrawLine(xl, y, xr, y,c);
+		DrawLine(xl, y, xr, y, c);
 	}
 }
 
@@ -110,7 +110,7 @@ void CSDevice::DrawTriangle(int x0, int y0, int x1, int y1, int x2, int y2, CSCo
 	assert(y0 <= y1);
 	assert(y1 <= y2);
 	if (y0 == y1) {
-		DrawTopFlatTriangle(x0,y0,x1,y1,x2,y2,c);
+		DrawTopFlatTriangle(x0, y0, x1, y1, x2, y2, c);
 	}
 	else if (y1 == y2) {
 		DrawBottomFlatTriangle(x0, y0, x1, y1, x2, y2, c);
@@ -152,7 +152,7 @@ CSMatrix CSDevice::GenRotateMatrix(const CSVector3& v) {
 	CSMatrix rotX = GenRotateMatrixMatrixOnOneAxis(v.x, 1, 2);
 	CSMatrix rotY = GenRotateMatrixMatrixOnOneAxis(v.y, 2, 0);
 	CSMatrix rotZ = GenRotateMatrixMatrixOnOneAxis(v.z, 0, 1);
-	return rotX*rotY*rotZ;
+	return rotX * rotY*rotZ;
 }
 
 //when rotate on x, wont change x, but put rotation matrix on y and z, same as other two

@@ -30,5 +30,5 @@ public:
 	CSMatrix GenScaleMatrix(const CSVector3& v);
 	CSMatrix GenRotateMatrix(const CSVector3& v);
 	CSMatrix GenTranslateMatrix(const CSVector3& v);
-	CSMatrix GenCameraMatrix(const CSVector3& eyePos, const CSVector3& lookPos, const CSVector3& upAxis = CSVector3(0,1,0));
+	CSMatrix GenCameraMatrix(const CSVector3& eyePos, const CSVector3& lookPos, const CSVector3& upAxis = CSVector3(0, 1, 0));
 };
