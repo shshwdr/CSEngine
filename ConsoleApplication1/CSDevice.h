@@ -6,6 +6,7 @@
 #include "CSMatrix.h"
 #include "CSVector3.h"
 
+//https://blog.csdn.net/puppet_master/article/details/80317178
 class CSDevice
 {
 private:
@@ -31,4 +32,5 @@ public:
 	CSMatrix GenRotateMatrix(const CSVector3& v);
 	CSMatrix GenTranslateMatrix(const CSVector3& v);
 	CSMatrix GenCameraMatrix(const CSVector3& eyePos, const CSVector3& lookPos, const CSVector3& upAxis = CSVector3(0, 1, 0));
+	CSMatrix GenProjectionMatrix(float fov, float aspect, float nearPlane, float farPlane);
 };

@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <assert.h>
 #include "CSDevice.h"
-
+#include "CSMathUtil.h"
 
 
 CSDevice::CSDevice() {}
@@ -201,4 +201,24 @@ CSMatrix CSDevice::GenCameraMatrix(const CSVector3& eyePos, const CSVector3& loo
 	m.value[1][0] = V.y; m.value[1][1] = U.y;m.value[1][2] = N.y;
 	m.value[2][0] = V.z; m.value[2][1] = U.z;m.value[2][2] = N.z;
 	m.value[3][0] = transX; m.value[3][1] = transX;m.value[3][2] = transX;m.value[3][3] = 1;
+	return m;
+}
+//return NDC(normalized device coordinates) for different resolution
+//x, y projected to (-1,1), z projected to (0,1) (in opengl it is (-1,1)
+//when project between N and F, z' is inproportion to 1/z, so (az+b)/z
+//put N and F into it, a = F/(F-N) b = NF/(N-F), so m[2][2][ = a, m[3][2] = b
+//x'/x  = z'/z x = Nx/Z  
+//project from [L,R] to [-1,1], x' = 2*NX/(Z*W), so m[0][0] = 2*N/W  w is the width of screen
+//H/2 = tan(0.5*fov) * N m[1][1] = 1/tan(0.5fov)
+//W = H*Aspect m[0][0] = 1/(tan(0.5fov)*Aspect)  aspect = screenW/screenH
+//fov is pass in as degree
+CSMatrix CSDevice::GenProjectionMatrix(float fov, float aspect, float nearPlane, float farPlane) {
+	float tanValue = tan(CSMathUtil::DegToArc(0.5*fov));
+	CSMatrix m;
+	m.value[0][0] = 1.0f / (tanValue * aspect);
+	m.value[1][1] = 1.0f / (tanValue);
+	m.value[2][2] = farPlane / (farPlane - nearPlane);
+	m.value[3][2] = -nearPlane * farPlane / (farPlane - nearPlane);
+	m.value[2][3] = 1;
+	return m;
 }
