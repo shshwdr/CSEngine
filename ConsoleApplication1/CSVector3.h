@@ -20,7 +20,12 @@ public:
 	float Magnitude();
 
 	CSVector3 static Normalize(CSVector3& v);
+	// a*b = |a||b|cos(angle)  
+	//a*b>0 => accute a*b=0 => right angle 
+	//when b is normalized, a*b is length when a project on b
 	float static Dot(const CSVector3& left, const CSVector3& right);
+	//axb = |a||b|sin(angle)  
+	//axa = 0
 	CSVector3 static Cross(const CSVector3& left, const CSVector3& right);
 	inline CSVector3 static Lerp(const CSVector3& left, const CSVector3& right, float t);
 

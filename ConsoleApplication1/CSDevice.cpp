@@ -184,7 +184,21 @@ CSMatrix CSDevice::GenTranslateMatrix(const CSVector3& v) {
 //WTC^-1 = (RT)^-1 = (T^-1)(R^-1)
 //T^-1: change x,y,z to reverse value
 //R^-1: R is a othogonal matrix, so M*M^T = I  so M^T=M^-1
-CSMatrix GenCameraMatrix(const CSVector3& eyePos, const CSVector3& lookPos, const CSVector3& upAxis) {
+CSMatrix CSDevice::GenCameraMatrix(const CSVector3& eyePos, const CSVector3& lookPos, const CSVector3& upAxis) {
+	//use left hand. thumb is N(look dir,z), index finger is Up, miggle finger is right.
+	//when do cross multiply, use right hand's fingers go from thumb to index finger, thumb is the dir
 	CSVector3 N = lookPos - eyePos;
-
+	N.Normalize();
+	CSVector3 V = CSVector3::Cross(upAxis, N);
+	V.Normalize();
+	CSVector3 U = CSVector3::Cross(N, V);
+	U.Normalize();
+	float transX = -CSVector3::Dot(V, eyePos);
+	float transY = -CSVector3::Dot(U, eyePos);
+	float transZ = -CSVector3::Dot(N, eyePos);
+	CSMatrix m;
+	m.value[0][0] = V.x; m.value[0][1] = U.x;m.value[0][2] = N.x;
+	m.value[1][0] = V.y; m.value[1][1] = U.y;m.value[1][2] = N.y;
+	m.value[2][0] = V.z; m.value[2][1] = U.z;m.value[2][2] = N.z;
+	m.value[3][0] = transX; m.value[3][1] = transX;m.value[3][2] = transX;m.value[3][3] = 1;
 }
