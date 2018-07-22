@@ -117,6 +117,10 @@ void CSDevice::DrawTriangle(int x0, int y0, int x1, int y1, int x2, int y2, CSCo
 	}
 	assert(y0 <= y1);
 	assert(y1 <= y2);
+	if (y0 == y1 && y1 == y2) {
+		//TODO:what should we do here
+		return;
+	}
 	if (y0 == y1) {
 		DrawTopFlatTriangle(x0, y0, x1, y1, x2, y2, c);
 	}
@@ -239,15 +243,16 @@ CSVector3 CSDevice::GetScreenCoord(const CSVector3& v) {
 	float z = 1 / v.z;
 	return CSVector3(x, y, z);
 }
+int count = 0;
 CSMatrix CSDevice::GetMVPMatrix() {
-
-	float currentTime =  timeGetTime()*0.001f;
+	//TODO: bug. when GenRotateMatrix(CSVector3(count++ * 0.002f, 0, 0));, the transform looks weird.
+	float currentTime = timeGetTime()*0.001f;
 	float rotation = sin(currentTime)*CSMathUtil::PI_F;
 	CSMatrix scaleM = GenScaleMatrix(CSVector3(1, 1, 1));
-	CSMatrix rotM = GenRotateMatrix(CSVector3(0, rotation, 0));
-	CSMatrix transM =GenTranslateMatrix(CSVector3(0, 0, 0));
+	CSMatrix rotM = GenRotateMatrix(CSVector3(count++ * 0.002f, 0, 0));
+	CSMatrix transM = GenTranslateMatrix(CSVector3(0, 0, 0));
 	CSMatrix worldM = scaleM * rotM*transM;
-	CSMatrix cameraM = GenCameraMatrix(CSVector3(0, 0, -5), CSVector3(0, 0, 0));
+	CSMatrix cameraM = GenCameraMatrix(CSVector3(0, -5, 0), CSVector3(0, 0, 0), CSVector3(0, 0, -1));
 	CSMatrix projM = GenProjectionMatrix(60, (float)deviceWidth / deviceHeight, 0.1f, 30);
 	return worldM * cameraM*projM;
 

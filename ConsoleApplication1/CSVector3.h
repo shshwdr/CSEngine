@@ -7,7 +7,7 @@ public:
 	//w = 1 means vector is a point
 	//w = 0 means vector is a vector, transform won't change vector
 	float x, y, z, w;
-	CSVector3(float fx, float fy, float fz,float fw) :x(fx), y(fy), z(fz),w(fw) {}
+	CSVector3(float fx, float fy, float fz, float fw) :x(fx), y(fy), z(fz), w(fw) {}
 	CSVector3(float fx, float fy, float fz) :x(fx), y(fy), z(fz), w(1) {};
 	~CSVector3();
 
