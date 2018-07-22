@@ -2,8 +2,7 @@
 #include <algorithm>
 #include <assert.h>
 #include "CSDevice.h"
-#include "CSMatrix.h"
-#include "CSVector3.h"
+
 
 
 CSDevice::CSDevice() {}
@@ -136,7 +135,56 @@ inline void CSDevice::DrawPixel(int x, int y, CSColor c = CSColor::red())
 }
 
 //MVP
-//CSMatrix CSDevice::GenScaleMatrix(const CSVector3& v) {
-//	CSMatrix m = CSMatrix::Identity();
-//	return m;
-//}
+//1.world = modeal*SRT
+CSMatrix CSDevice::GenScaleMatrix(const CSVector3& v) {
+	CSMatrix m = CSMatrix::Identity();
+	m.value[0][0] = v.x;
+	m.value[1][1] = v.y;
+	m.value[2][2] = v.z;
+	return m;
+}
+//http://www.cnblogs.com/luweimy/p/4121789.html#3743809
+//x' = r*cos(a+b) = cos(a)x-sin(a)*y
+//y' = r*sin(a+b) = sin(a)x+cos(a)*y
+// [ cos(a)  sin(a)]  rotations matrix
+// [-sin(a)  cos(a)]
+CSMatrix CSDevice::GenRotateMatrix(const CSVector3& v) {
+	CSMatrix rotX = GenRotateMatrixMatrixOnOneAxis(v.x, 1, 2);
+	CSMatrix rotY = GenRotateMatrixMatrixOnOneAxis(v.y, 2, 0);
+	CSMatrix rotZ = GenRotateMatrixMatrixOnOneAxis(v.z, 0, 1);
+	return rotX*rotY*rotZ;
+}
+
+//when rotate on x, wont change x, but put rotation matrix on y and z, same as other two
+//pass i1 and i2 as index for the axis that need to change.
+CSMatrix CSDevice::GenRotateMatrixMatrixOnOneAxis(float angle, int i1, int i2) {
+	CSMatrix m = CSMatrix::Identity();
+	float cosValue = cos(angle);
+	float sinValue = sin(angle);
+	m.value[i1][i1] = cosValue;
+	m.value[i1][i2] = sinValue;
+	m.value[i2][i1] = -sinValue;
+	m.value[i2][i2] = cosValue;
+	return m;
+}
+
+CSMatrix CSDevice::GenTranslateMatrix(const CSVector3& v) {
+	CSMatrix m = CSMatrix::Identity();
+	m.value[3][0] = v.x;
+	m.value[3][1] = v.y;
+	m.value[3][2] = v.z;
+	return m;
+}
+
+//2.world to camera
+//define camera's rotation in two ways: 1.define raw, pitch, roll(rotation for axis x,y,z)
+//										2.UVN, U 's initial value is (0,1,0)
+// use the second one to define LookAt easier
+//transfrom on a point means do T^-1 on its coordinate system
+//WTC^-1 = (RT)^-1 = (T^-1)(R^-1)
+//T^-1: change x,y,z to reverse value
+//R^-1: R is a othogonal matrix, so M*M^T = I  so M^T=M^-1
+CSMatrix GenCameraMatrix(const CSVector3& eyePos, const CSVector3& lookPos, const CSVector3& upAxis) {
+	CSVector3 N = lookPos - eyePos;
+
+}

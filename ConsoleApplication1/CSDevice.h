@@ -3,6 +3,8 @@
 #include <windows.h>
 
 #include "CSColor.h"
+#include "CSMatrix.h"
+#include "CSVector3.h"
 
 class CSDevice
 {
@@ -14,6 +16,8 @@ private:
 	void DrawBottomFlatTriangle(int x0, int y0, int x1, int y1, int x2, int y2, CSColor c = CSColor::red());
 	void DrawTopFlatTriangle(int x0, int y0, int x1, int y1, int x2, int y2, CSColor c = CSColor::red());
 
+	CSMatrix GenRotateMatrixMatrixOnOneAxis(float angle, int i1, int i2);
+
 public:
 	CSDevice();
 	~CSDevice();
@@ -23,5 +27,8 @@ public:
 	void DrawPixel(int x0, int y0, CSColor c);
 
 	//mvp
-	//CSMatrix GenScaleMatrix(const CSVector3& v);
+	CSMatrix GenScaleMatrix(const CSVector3& v);
+	CSMatrix GenRotateMatrix(const CSVector3& v);
+	CSMatrix GenTranslateMatrix(const CSVector3& v);
+	CSMatrix GenCameraMatrix(const CSVector3& eyePos, const CSVector3& lookPos, const CSVector3& upAxis = CSVector3(0,1,0));
 };
