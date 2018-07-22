@@ -5,6 +5,7 @@
 #include "CSColor.h"
 #include "CSMatrix.h"
 #include "CSVector3.h"
+#include "Texture.h"
 
 //https://blog.csdn.net/puppet_master/article/details/80317178
 class CSDevice
@@ -13,6 +14,9 @@ private:
 	int deviceWidth;
 	int deviceHeight;
 	HDC screenHDC;
+	Texture *tex;
+
+	void DrawLineTemp(int x0, int y0, int x1, int y1, int y2, CSColor c = CSColor::red());
 
 	void DrawBottomFlatTriangle(int x0, int y0, int x1, int y1, int x2, int y2, CSColor c = CSColor::red());
 	void DrawTopFlatTriangle(int x0, int y0, int x1, int y1, int x2, int y2, CSColor c = CSColor::red());

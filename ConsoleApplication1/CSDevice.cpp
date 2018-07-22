@@ -5,6 +5,7 @@
 #include "CSMathUtil.h"
 #include <ctime>
 #include <windows.h>
+#include "Vertext.h"
 
 
 CSDevice::CSDevice() {}
@@ -13,6 +14,9 @@ void CSDevice::InitDevice(HDC hdc, int w, int h) {
 	screenHDC = hdc;
 	deviceWidth = w;
 	deviceHeight = h;
+
+	tex = new Texture();
+	tex->LoadTexture("sunshineRainbowUnicorn.bmp");
 }
 
 void CSDevice::Clear() {
@@ -84,12 +88,40 @@ void CSDevice::DrawLine(int x0, int y0, int x1, int y1, CSColor c = CSColor::red
 		}
 	}
 }
+
+void CSDevice::DrawLineTemp(int x0, int y0, int x1, int y1,int y2, CSColor c)
+{
+	//Bresenham with division
+	//e = old_e - 0.5  we only need to check e > 0
+	//e *= dx so we can do e+=dy and e-=dx, then e = -0.5*dx
+	//then we do d *=2 so e = -dx, e+=2dy,e-=2dx
+	int dx = x1 - x0;
+	int stepx = 1;
+	int stepy = 1;
+	if (dx < 0) {
+		stepx = -1;
+		dx = -dx;
+	}
+	int x = x0;
+	int y = y0;
+	int dx2 = dx << 1;
+	float errorValue = 0;
+		errorValue = -dx;
+		for (int i = 0;i <= dx;i++) {
+			float u = (float)(x - x0) / (x1 - x0);
+			float v = (float)(y - y1) / (y2 - y1);
+			CSColor c = tex->Sample(u, v);
+			DrawPixel(x, y, c);
+			x += stepx;
+		}
+}
+
 //anti clock wise, (x0,y0) is the top
 void CSDevice::DrawBottomFlatTriangle(int x0, int y0, int x1, int y1, int x2, int y2, CSColor c) {
 	for (int y = y0;y <= y1;y++) {
 		int xl = (x1 - x0)*(y - y0) / (y1 - y0) + x0;
 		int xr = (x2 - x0)*(y - y0) / (y2 - y0) + x0;
-		DrawLine(xl, y, xr, y, c);
+		DrawLineTemp(xl, y, xr, y0,y1, c);
 	}
 }
 //(x2,y2) is the bottom
@@ -97,7 +129,7 @@ void CSDevice::DrawTopFlatTriangle(int x0, int y0, int x1, int y1, int x2, int y
 	for (int y = y0;y <= y2;y++) {
 		int xl = (x1 - x2)*(y - y2) / (y1 - y2) + x2;
 		int xr = (x0 - x2)*(y - y2) / (y0 - y2) + x2;
-		DrawLine(xl, y, xr, y, c);
+		DrawLineTemp(xl, y, xr, y0, y1,c);
 	}
 }
 
@@ -249,10 +281,10 @@ CSMatrix CSDevice::GetMVPMatrix() {
 	float currentTime = timeGetTime()*0.001f;
 	float rotation = sin(currentTime)*CSMathUtil::PI_F;
 	CSMatrix scaleM = GenScaleMatrix(CSVector3(1, 1, 1));
-	CSMatrix rotM = GenRotateMatrix(CSVector3(count++ * 0.002f, 0, 0));
+	CSMatrix rotM = GenRotateMatrix(CSVector3(0, rotation, 0));
 	CSMatrix transM = GenTranslateMatrix(CSVector3(0, 0, 0));
 	CSMatrix worldM = scaleM * rotM*transM;
-	CSMatrix cameraM = GenCameraMatrix(CSVector3(0, -5, 0), CSVector3(0, 0, 0), CSVector3(0, 0, -1));
+	CSMatrix cameraM = GenCameraMatrix(CSVector3(0, 0, -5), CSVector3(0, 0, 0), CSVector3(0, 1, 0));
 	CSMatrix projM = GenProjectionMatrix(60, (float)deviceWidth / deviceHeight, 0.1f, 30);
 	return worldM * cameraM*projM;
 

@@ -9,6 +9,7 @@ public:
 	float x, y, z, w;
 	CSVector3(float fx, float fy, float fz, float fw) :x(fx), y(fy), z(fz), w(fw) {}
 	CSVector3(float fx, float fy, float fz) :x(fx), y(fy), z(fz), w(1) {};
+	CSVector3() {};
 	~CSVector3();
 
 	CSVector3 operator + (const CSVector3& right) const;
