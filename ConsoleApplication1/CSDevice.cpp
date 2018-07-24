@@ -126,9 +126,9 @@ void CSDevice::RasterizeTriangle(Vertex v0, Vertex v1, Vertex v2) {
 		DrawBottomFlatTriangle(v0, v1, v2);
 	}
 	else {
-		int y3 = y1;
+		float y3 = y1;
 		//put y1 into line (x0,y0) to (x2,y2)
-		int x3 = (x0 - x2)*(y3 - y2) / (y0 - y2) + x2;
+		float x3 = (x0 - x2)*(y3 - y2) / (y0 - y2) + x2;
 
 
 		Vertex v3(CSVector3(x3, y3, 0), CSColor::None(), 0, 0);
