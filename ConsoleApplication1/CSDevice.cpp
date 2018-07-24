@@ -33,17 +33,15 @@ void CSDevice::DrawLine(Vertex v0, Vertex v1)
 	float x1 = v1.pos.x;
 	float y0 = v0.pos.y;
 	float y1 = v1.pos.y;
-
-	int dx = x1 - x0;
+	assert(y1 == y0);
+	int dx = ceil( x1 - x0);
 	int stepx = 1;
 	if (dx < 0) {
 		stepx = -1;
 		dx = -dx;
 	}
-	int x = x0;
-	int y = y0;
-	int dx2 = dx << 1;
-	float errorValue = -dx;
+	float x = x0;
+	float y = y0;
 	for (int i = 0;i <= dx;i++) {
 		float t = (x - x0) / (x1 - x0);
 		float u = Vertex::LerpFloat(v0.u, v1.u, t);
@@ -63,7 +61,6 @@ void CSDevice::DrawTopFlatTriangle(Vertex v0, Vertex v1, Vertex v2) {
 	float y1 = v1.pos.y;
 	float x2 = v2.pos.x;
 	float y2 = v2.pos.y;
-	//hmm the last part of y is lost?
 	for (float y = y0;y <= y2;y++) {
 		//lerp y for uv in this func
 		//x is lerped in DrawLine
@@ -110,12 +107,12 @@ void CSDevice::RasterizeTriangle(Vertex v0, Vertex v1, Vertex v2) {
 	if (v1.pos.y > v2.pos.y) {
 		std::swap(v1, v2);
 	}
-	int y0 = v0.pos.y;
-	int y1 = v1.pos.y;
-	int y2 = v2.pos.y;
-	int x0 = v0.pos.x;
-	int x1 = v1.pos.x;
-	int x2 = v2.pos.x;
+	float y0 = v0.pos.y;
+	float y1 = v1.pos.y;
+	float y2 = v2.pos.y;
+	float x0 = v0.pos.x;
+	float x1 = v1.pos.x;
+	float x2 = v2.pos.x;
 	assert(y0 <= y1);
 	assert(y1 <= y2);
 	if (y0 == y1 && y1 == y2) {
@@ -135,20 +132,12 @@ void CSDevice::RasterizeTriangle(Vertex v0, Vertex v1, Vertex v2) {
 
 
 		Vertex v3(CSVector3(x3, y3, 0), CSColor::None(), 0, 0);
+		float t = (y3 - y0) / (y2 - y0);
+		v3.LerpVertexData(v0, v2, t);
 
-		//sort x1 and x3, we want x1<x3, so 013 and 312 are the triangles we get
-		if (x1 > x3) {
-			float t = (y3 - y0) / (y1 - y0);
-			v3.LerpVertexData(v0, v1, t);
-			std::swap(v1, v3);
-		}
-		else {
-			float t = (y3 - y0) / (y2 - y0);
-			v3.LerpVertexData(v0, v2, t);
-		}
 
 		DrawBottomFlatTriangle(v0, v1, v3);
-		DrawTopFlatTriangle(v1, v3, v2);
+		DrawTopFlatTriangle(v3, v1, v2);
 	}
 }
 
@@ -253,7 +242,7 @@ CSMatrix CSDevice::GetMVPMatrix() {
 	float currentTime = timeGetTime()*0.001f;
 	float rotation = sin(currentTime)*CSMathUtil::PI_F;
 	CSMatrix scaleM = GenScaleMatrix(CSVector3(1, 1, 1));
-	CSMatrix rotM = GenRotateMatrix(CSVector3(0, 0, 0));
+	CSMatrix rotM = GenRotateMatrix(CSVector3(0, rotation, 0));
 	CSMatrix transM = GenTranslateMatrix(CSVector3(0, 0, 0));
 	CSMatrix worldM = scaleM * rotM*transM;
 	CSMatrix cameraM = GenCameraMatrix(CSVector3(0, 0, -5), CSVector3(0, 0, 0), CSVector3(0, 1, 0));

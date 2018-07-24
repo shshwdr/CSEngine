@@ -40,7 +40,7 @@ Mesh* Mesh::CreatePlane() {
 	mesh->AddVertexData(1, -1, 0, 1, 1, CSColor(0, 0, 1.0f, 1.0f));
 	mesh->AddVertexData(-1, -1, 0, 0, 1, CSColor(1.0f, 0, 0, 1.0f));
 
-	int indexArray[] = { 0, 1, 2, 0, 2, 3 };
+	int indexArray[] = {  0, 2, 3 };
 	//数组直接转vector https://blog.csdn.net/sagittarius_warrior/article/details/54089242
 	std::vector<int> index(indexArray, indexArray + sizeof(indexArray) / sizeof(int));
 	mesh->indexBuffer = index;
