@@ -34,7 +34,7 @@ void CSDevice::DrawLine(Vertex v0, Vertex v1)
 	float y0 = v0.pos.y;
 	float y1 = v1.pos.y;
 	assert(y1 == y0);
-	int dx = ceil( x1 - x0);
+	int dx =  x1 - x0;
 	int stepx = 1;
 	if (dx < 0) {
 		stepx = -1;
@@ -42,7 +42,8 @@ void CSDevice::DrawLine(Vertex v0, Vertex v1)
 	}
 	float x = x0;
 	float y = y0;
-	for (int i = 0;i <= dx;i++) {
+	//TODO: better way to solve dx+1?
+	for (int i = 0;i <= dx+1;i++) {
 		float t = (x - x0) / (x1 - x0);
 		float u = Vertex::LerpFloat(v0.u, v1.u, t);
 		float v = Vertex::LerpFloat(v0.v, v1.v, t);
