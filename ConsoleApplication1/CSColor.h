@@ -8,6 +8,13 @@ public:
 	CSColor() {};
 	~CSColor() {}
 
-	static const CSColor red() { return CSColor(1, 0, 0, 0); }
+
+	CSColor operator +(const CSColor& right)const;
+	CSColor operator -(const CSColor& right)const;
+	CSColor operator *(float v)const;
+
+	static const CSColor red() { return CSColor(1, 0, 0, 1); }
+	static const CSColor None() { return CSColor(0, 0, 0, 0); }
+	static const CSColor Lerp(const CSColor& c1, const CSColor& c2, float t);
 };
 

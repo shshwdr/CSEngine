@@ -5,7 +5,6 @@
 #include "CSMathUtil.h"
 #include <ctime>
 #include <windows.h>
-#include "Vertext.h"
 
 
 CSDevice::CSDevice() {}
@@ -23,81 +22,20 @@ void CSDevice::Clear() {
 	BitBlt(screenHDC, 0, 0, deviceWidth, deviceHeight, NULL, NULL, NULL, BLACKNESS);
 }
 
-//void CSDevice::DrawLine_outdated(int x0, int y0, int x1, int y1)
-//{
-//	//Bresenham with division
-//	//slope = dy/dx
-//	int dx = x1 - x0;
-//	int dy = y1 - y0;
-//	float errorValue = 0;
-//	for (int x = x0, y = y0;x <= x1;x++) {
-//		DrawPixel(x, y);
-//		errorValue += (float)dy / dx;
-//		if (errorValue > 0.5) {
-//			errorValue -= 1;
-//			y++;
-//		}
-//	}
-//}
 
-
-////https://zhuanlan.zhihu.com/p/20213658
-void CSDevice::DrawLine(int x0, int y0, int x1, int y1, CSColor c = CSColor::red())
+void CSDevice::DrawLine(Vertex v0, Vertex v1)
 {
 	//Bresenham with division
 	//e = old_e - 0.5  we only need to check e > 0
 	//e *= dx so we can do e+=dy and e-=dx, then e = -0.5*dx
 	//then we do d *=2 so e = -dx, e+=2dy,e-=2dx
-	int dx = x1 - x0;
-	int dy = y1 - y0;
-	int stepx = 1;
-	int stepy = 1;
-	if (dx < 0) {
-		stepx = -1;
-		dx = -dx;
-	}
-	if (dy < 0) {
-		stepy = -1;
-		dy = -dy;
-	}
-	int dx2 = dx << 1;
-	int dy2 = dy << 1;
-	float errorValue = 0;
-	if (dx > dy) {
-		errorValue = -dx;
-		for (int i = 0;i <= dx;i++) {
-			DrawPixel(x0, y0, c);
-			x0 += stepx;
-			errorValue += dy2;
-			if (errorValue >= 0) {
-				errorValue -= dx2;
-				y0 += stepy;
-			}
-		}
-	}
-	else {
-		errorValue = -dy;
-		for (int i = 0;i <= dy;i++) {
-			DrawPixel(x0, y0, c);
-			y0 += stepy;
-			errorValue += dx2;
-			if (errorValue >= 0) {
-				errorValue -= dy2;
-				x0 += stepx;
-			}
-		}
-	}
-}
+	float x0 = v0.pos.x;
+	float x1 = v1.pos.x;
+	float y0 = v0.pos.y;
+	float y1 = v1.pos.y;
 
-void CSDevice::DrawLineTemp(int x0, int y0, int x1, int y1,int y2, CSColor c)
-{
-	//Bresenham with division
-	//e = old_e - 0.5  we only need to check e > 0
-	//e *= dx so we can do e+=dy and e-=dx, then e = -0.5*dx
-	//then we do d *=2 so e = -dx, e+=2dy,e-=2dx
 	int dx = x1 - x0;
 	int stepx = 1;
-	int stepy = 1;
 	if (dx < 0) {
 		stepx = -1;
 		dx = -dx;
@@ -105,48 +43,79 @@ void CSDevice::DrawLineTemp(int x0, int y0, int x1, int y1,int y2, CSColor c)
 	int x = x0;
 	int y = y0;
 	int dx2 = dx << 1;
-	float errorValue = 0;
-		errorValue = -dx;
-		for (int i = 0;i <= dx;i++) {
-			float u = (float)(x - x0) / (x1 - x0);
-			float v = (float)(y - y1) / (y2 - y1);
-			CSColor c = tex->Sample(u, v);
-			DrawPixel(x, y, c);
-			x += stepx;
-		}
-}
-
-//anti clock wise, (x0,y0) is the top
-void CSDevice::DrawBottomFlatTriangle(int x0, int y0, int x1, int y1, int x2, int y2, CSColor c) {
-	for (int y = y0;y <= y1;y++) {
-		int xl = (x1 - x0)*(y - y0) / (y1 - y0) + x0;
-		int xr = (x2 - x0)*(y - y0) / (y2 - y0) + x0;
-		DrawLineTemp(xl, y, xr, y0,y1, c);
-	}
-}
-//(x2,y2) is the bottom
-void CSDevice::DrawTopFlatTriangle(int x0, int y0, int x1, int y1, int x2, int y2, CSColor c) {
-	for (int y = y0;y <= y2;y++) {
-		int xl = (x1 - x2)*(y - y2) / (y1 - y2) + x2;
-		int xr = (x0 - x2)*(y - y2) / (y0 - y2) + x2;
-		DrawLineTemp(xl, y, xr, y0, y1,c);
+	float errorValue = -dx;
+	for (int i = 0;i <= dx;i++) {
+		float t = (x - x0) / (x1 - x0);
+		float u = Vertex::LerpFloat(v0.u, v1.u, t);
+		float v = Vertex::LerpFloat(v0.v, v1.v, t);
+		CSColor c = tex->Sample(u, v);
+		DrawPixel(x, y, c);
+		x += stepx;
 	}
 }
 
-void CSDevice::DrawTriangle(int x0, int y0, int x1, int y1, int x2, int y2, CSColor c) {
-	//sort three point based on y
-	if (y0 > y2) {
-		std::swap(x0, x2);
-		std::swap(y0, y2);
+
+
+void CSDevice::DrawTopFlatTriangle(Vertex v0, Vertex v1, Vertex v2) {
+	float x0 = v0.pos.x;
+	float y0 = v0.pos.y;
+	float x1 = v1.pos.x;
+	float y1 = v1.pos.y;
+	float x2 = v2.pos.x;
+	float y2 = v2.pos.y;
+	//hmm the last part of y is lost?
+	for (float y = y0;y <= y2;y++) {
+		//lerp y for uv in this func
+		//x is lerped in DrawLine
+		float t = (y - y0) / (y2 - y0);
+		float xl = (x1 - x2)*(y - y2) / (y1 - y2) + x2;
+		Vertex vl(CSVector3(xl, y, 0), CSColor::None(), 0, 0);
+		vl.LerpVertexData(v1, v2, t);
+		float xr = (x0 - x2)*(y - y2) / (y0 - y2) + x2;
+		Vertex vr(CSVector3(xr, y, 0), CSColor::None(), 0, 0);
+		vr.LerpVertexData(v0, v2, t);
+		DrawLine(vl, vr);
 	}
-	if (y0 > y1) {
-		std::swap(x0, x1);
-		std::swap(y0, y1);
+}
+
+void CSDevice::DrawBottomFlatTriangle(Vertex v0, Vertex v1, Vertex v2) {
+	float x0 = v0.pos.x;
+	float y0 = v0.pos.y;
+	float x1 = v1.pos.x;
+	float y1 = v1.pos.y;
+	float x2 = v2.pos.x;
+	float y2 = v2.pos.y;
+	for (float y = y0;y <= y1;y++) {
+		//lerp y for uv in this func
+		//x is lerped in DrawLine
+		float t = (y - y0) / (y2 - y0);
+		float xl = (x1 - x0)*(y - y0) / (y1 - y0) + x0;
+		Vertex vl(CSVector3(xl, y, 0), CSColor::None(), 0, 0);
+		vl.LerpVertexData(v0, v1, t);
+		float xr = (x2 - x0)*(y - y0) / (y2 - y0) + x0;
+		Vertex vr(CSVector3(xr, y, 0), CSColor::None(), 0, 0);
+		vr.LerpVertexData(v0, v2, t);
+		DrawLine(vl, vr);
 	}
-	if (y1 > y2) {
-		std::swap(x1, x2);
-		std::swap(y1, y2);
+}
+
+
+void CSDevice::RasterizeTriangle(Vertex v0, Vertex v1, Vertex v2) {
+	if (v0.pos.y > v2.pos.y) {
+		std::swap(v0, v2);
 	}
+	if (v0.pos.y > v1.pos.y) {
+		std::swap(v0, v1);
+	}
+	if (v1.pos.y > v2.pos.y) {
+		std::swap(v1, v2);
+	}
+	int y0 = v0.pos.y;
+	int y1 = v1.pos.y;
+	int y2 = v2.pos.y;
+	int x0 = v0.pos.x;
+	int x1 = v1.pos.x;
+	int x2 = v2.pos.x;
 	assert(y0 <= y1);
 	assert(y1 <= y2);
 	if (y0 == y1 && y1 == y2) {
@@ -154,24 +123,35 @@ void CSDevice::DrawTriangle(int x0, int y0, int x1, int y1, int x2, int y2, CSCo
 		return;
 	}
 	if (y0 == y1) {
-		DrawTopFlatTriangle(x0, y0, x1, y1, x2, y2, c);
+		DrawTopFlatTriangle(v0, v1, v2);
 	}
 	else if (y1 == y2) {
-		DrawBottomFlatTriangle(x0, y0, x1, y1, x2, y2, c);
+		DrawBottomFlatTriangle(v0, v1, v2);
 	}
 	else {
 		int y3 = y1;
 		//put y1 into line (x0,y0) to (x2,y2)
 		int x3 = (x0 - x2)*(y3 - y2) / (y0 - y2) + x2;
+
+
+		Vertex v3(CSVector3(x3, y3, 0), CSColor::None(), 0, 0);
+
 		//sort x1 and x3, we want x1<x3, so 013 and 312 are the triangles we get
 		if (x1 > x3) {
-			std::swap(x1, x3);
-			std::swap(y1, y3);
+			float t = (y3 - y0) / (y1 - y0);
+			v3.LerpVertexData(v0, v1, t);
+			std::swap(v1, v3);
 		}
-		DrawBottomFlatTriangle(x0, y0, x1, y1, x3, y3, c);
-		DrawTopFlatTriangle(x3, y3, x1, y1, x2, y2, c);
+		else {
+			float t = (y3 - y0) / (y2 - y0);
+			v3.LerpVertexData(v0, v2, t);
+		}
+
+		DrawBottomFlatTriangle(v0, v1, v3);
+		DrawTopFlatTriangle(v1, v3, v2);
 	}
 }
+
 
 inline void CSDevice::DrawPixel(int x, int y, CSColor c = CSColor::red())
 {
@@ -266,6 +246,45 @@ CSMatrix CSDevice::GenProjectionMatrix(float fov, float aspect, float nearPlane,
 	m.value[2][3] = 1;
 	return m;
 }
+
+
+CSMatrix CSDevice::GetMVPMatrix() {
+	//TODO: bug. when GenRotateMatrix(CSVector3(count++ * 0.002f, 0, 0));, the transform looks weird.
+	float currentTime = timeGetTime()*0.001f;
+	float rotation = sin(currentTime)*CSMathUtil::PI_F;
+	CSMatrix scaleM = GenScaleMatrix(CSVector3(1, 1, 1));
+	CSMatrix rotM = GenRotateMatrix(CSVector3(0, 0, 0));
+	CSMatrix transM = GenTranslateMatrix(CSVector3(0, 0, 0));
+	CSMatrix worldM = scaleM * rotM*transM;
+	CSMatrix cameraM = GenCameraMatrix(CSVector3(0, 0, -5), CSVector3(0, 0, 0), CSVector3(0, 1, 0));
+	CSMatrix projM = GenProjectionMatrix(60, (float)deviceWidth / deviceHeight, 0.1f, 30);
+	return worldM * cameraM*projM;
+
+}
+
+void CSDevice::DrawPrimitive(Vertex v1, Vertex v2, Vertex v3, const CSMatrix& mvp) {
+	v1.pos = v1.pos*mvp;
+	v2.pos = v2.pos*mvp;
+	v3.pos = v3.pos*mvp;
+	PrepareRasterization(v1);
+	PrepareRasterization(v2);
+	PrepareRasterization(v3);
+	RasterizeTriangle(v1, v2, v3);
+
+}
+
+inline void CSDevice::PrepareRasterization(Vertex& vertex)
+{
+	float reciprocalW = 1.0f / vertex.pos.w;
+	vertex.pos.x = (vertex.pos.x*reciprocalW + 1.0f)*0.5f*deviceWidth;
+	vertex.pos.y = (1.0 - vertex.pos.y*reciprocalW) * 0.5*deviceHeight;
+	vertex.pos.z = 1 / vertex.pos.z;
+}
+
+
+
+#pragma region outdated draw
+
 //x:(-1,1)  to (0,width)
 //y:(-1,1) to (height,0)
 CSVector3 CSDevice::GetScreenCoord(const CSVector3& v) {
@@ -275,20 +294,7 @@ CSVector3 CSDevice::GetScreenCoord(const CSVector3& v) {
 	float z = 1 / v.z;
 	return CSVector3(x, y, z);
 }
-int count = 0;
-CSMatrix CSDevice::GetMVPMatrix() {
-	//TODO: bug. when GenRotateMatrix(CSVector3(count++ * 0.002f, 0, 0));, the transform looks weird.
-	float currentTime = timeGetTime()*0.001f;
-	float rotation = sin(currentTime)*CSMathUtil::PI_F;
-	CSMatrix scaleM = GenScaleMatrix(CSVector3(1, 1, 1));
-	CSMatrix rotM = GenRotateMatrix(CSVector3(0, rotation, 0));
-	CSMatrix transM = GenTranslateMatrix(CSVector3(0, 0, 0));
-	CSMatrix worldM = scaleM * rotM*transM;
-	CSMatrix cameraM = GenCameraMatrix(CSVector3(0, 0, -5), CSVector3(0, 0, 0), CSVector3(0, 1, 0));
-	CSMatrix projM = GenProjectionMatrix(60, (float)deviceWidth / deviceHeight, 0.1f, 30);
-	return worldM * cameraM*projM;
 
-}
 void CSDevice::DrawTrangle3D(const CSVector3& v1, const CSVector3& v2, const CSVector3& v3, const CSMatrix& mvp) {
 	CSVector3 vs1 = v1 * mvp;
 	CSVector3 vs2 = v2 * mvp;
@@ -298,3 +304,130 @@ void CSDevice::DrawTrangle3D(const CSVector3& v1, const CSVector3& v2, const CSV
 	CSVector3 ve3 = GetScreenCoord(vs3);
 	DrawTriangle(ve1.x, ve1.y, ve2.x, ve2.y, ve3.x, ve3.y);
 }
+
+
+void CSDevice::DrawTriangle(int x0, int y0, int x1, int y1, int x2, int y2, CSColor c) {
+	//sort three point based on y
+	if (y0 > y2) {
+		std::swap(x0, x2);
+		std::swap(y0, y2);
+	}
+	if (y0 > y1) {
+		std::swap(x0, x1);
+		std::swap(y0, y1);
+	}
+	if (y1 > y2) {
+		std::swap(x1, x2);
+		std::swap(y1, y2);
+	}
+	assert(y0 <= y1);
+	assert(y1 <= y2);
+	if (y0 == y1 && y1 == y2) {
+		//TODO:what should we do here
+		return;
+	}
+	if (y0 == y1) {
+		DrawTopFlatTriangle(x0, y0, x1, y1, x2, y2, c);
+	}
+	else if (y1 == y2) {
+		DrawBottomFlatTriangle(x0, y0, x1, y1, x2, y2, c);
+	}
+	else {
+		int y3 = y1;
+		//put y1 into line (x0,y0) to (x2,y2)
+		int x3 = (x0 - x2)*(y3 - y2) / (y0 - y2) + x2;
+		//sort x1 and x3, we want x1<x3, so 013 and 312 are the triangles we get
+		if (x1 > x3) {
+			std::swap(x1, x3);
+			std::swap(y1, y3);
+		}
+		DrawBottomFlatTriangle(x0, y0, x1, y1, x3, y3, c);
+		DrawTopFlatTriangle(x3, y3, x1, y1, x2, y2, c);
+	}
+}
+
+
+//anti clock wise, (x0,y0) is the top
+void CSDevice::DrawBottomFlatTriangle(int x0, int y0, int x1, int y1, int x2, int y2, CSColor c) {
+	for (int y = y0;y <= y1;y++) {
+		int xl = (x1 - x0)*(y - y0) / (y1 - y0) + x0;
+		int xr = (x2 - x0)*(y - y0) / (y2 - y0) + x0;
+		DrawLine(x0, y0, x1, y1, c);
+	}
+}
+//(x2,y2) is the bottom
+void CSDevice::DrawTopFlatTriangle(int x0, int y0, int x1, int y1, int x2, int y2, CSColor c) {
+	for (int y = y0;y <= y2;y++) {
+		int xl = (x1 - x2)*(y - y2) / (y1 - y2) + x2;
+		int xr = (x0 - x2)*(y - y2) / (y0 - y2) + x2;
+		DrawLine(x0, y0, x1, y1, c);
+	}
+}
+
+
+//void CSDevice::DrawLine_outdated(int x0, int y0, int x1, int y1)
+//{
+//	//Bresenham with division
+//	//slope = dy/dx
+//	int dx = x1 - x0;
+//	int dy = y1 - y0;
+//	float errorValue = 0;
+//	for (int x = x0, y = y0;x <= x1;x++) {
+//		DrawPixel(x, y);
+//		errorValue += (float)dy / dx;
+//		if (errorValue > 0.5) {
+//			errorValue -= 1;
+//			y++;
+//		}
+//	}
+//}
+
+
+////https://zhuanlan.zhihu.com/p/20213658
+void CSDevice::DrawLine(int x0, int y0, int x1, int y1, CSColor c = CSColor::red())
+{
+	//Bresenham with division
+	//e = old_e - 0.5  we only need to check e > 0
+	//e *= dx so we can do e+=dy and e-=dx, then e = -0.5*dx
+	//then we do d *=2 so e = -dx, e+=2dy,e-=2dx
+	int dx = x1 - x0;
+	int dy = y1 - y0;
+	int stepx = 1;
+	int stepy = 1;
+	if (dx < 0) {
+		stepx = -1;
+		dx = -dx;
+	}
+	if (dy < 0) {
+		stepy = -1;
+		dy = -dy;
+	}
+	int dx2 = dx << 1;
+	int dy2 = dy << 1;
+	float errorValue = 0;
+	if (dx > dy) {
+		errorValue = -dx;
+		for (int i = 0;i <= dx;i++) {
+			DrawPixel(x0, y0, c);
+			x0 += stepx;
+			errorValue += dy2;
+			if (errorValue >= 0) {
+				errorValue -= dx2;
+				y0 += stepy;
+			}
+		}
+	}
+	else {
+		errorValue = -dy;
+		for (int i = 0;i <= dy;i++) {
+			DrawPixel(x0, y0, c);
+			y0 += stepy;
+			errorValue += dx2;
+			if (errorValue >= 0) {
+				errorValue -= dy2;
+				x0 += stepx;
+			}
+		}
+	}
+}
+#pragma endregion
