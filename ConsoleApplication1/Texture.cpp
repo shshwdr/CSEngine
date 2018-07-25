@@ -30,12 +30,12 @@ void Texture::LoadTexture(const char* path) {
 			int r = color % 256;
 			int g = (color >> 8) % 256;
 			int b = (color >> 16) % 256;
-			CSColor c((float)r / 255, (float)g / 255, (float)b / 255);
+			Color c((float)r / 255, (float)g / 255, (float)b / 255);
 			textureData[i][j] = c;
 		}
 	}
 }
-CSColor Texture::Sample(float u, float v) {
+Color Texture::Sample(float u, float v) {
 	u = Clamp(0, 1, u);
 	v = Clamp(0, 1, v);
 	int intu = width * u;

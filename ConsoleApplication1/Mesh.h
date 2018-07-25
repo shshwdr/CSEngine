@@ -1,6 +1,6 @@
 #pragma once
 #include "Vertext.h"
-#include "CSDevice.h"
+#include "Device.h"
 #include <vector>
 class Mesh
 {
@@ -8,8 +8,8 @@ private:
 	std::vector<Vertex> vertexBuffer;
 	std::vector<int> indexBuffer;
 
-	void DrawElement(CSDevice* device);
-	void DrawArray(CSDevice* device);
+	void DrawElement(Device* device);
+	void DrawArray(Device* device);
 
 public:
 	Mesh();
@@ -19,9 +19,9 @@ public:
 	static Mesh* CreateCube();
 	//TODO: sphere
 
-	void AddVertexData(const CSVector3& pos, float u, float v, const CSColor& color = CSColor::red());
-	void AddVertexData(float px, float py, float pz, float u, float v, const CSColor& color = CSColor::red());
+	void AddVertexData(const Vector3& pos, float u, float v, const Color& color = Color::red());
+	void AddVertexData(float px, float py, float pz, float u, float v, const Color& color = Color::red());
 
-	void DrawMesh(CSDevice* device);
+	void DrawMesh(Device* device);
 };
 

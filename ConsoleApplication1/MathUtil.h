@@ -1,10 +1,10 @@
 #pragma once
-class CSMathUtil
+class MathUtil
 {
 public:
 
-	CSMathUtil();
-	~CSMathUtil();
+	MathUtil();
+	~MathUtil();
 	static constexpr float  PI_F = 3.14159265358979f;
 	inline static float DegToArc(float degree) {
 		return degree * PI_F / 180;

@@ -1,15 +1,15 @@
 #include "stdafx.h"
 #include <algorithm>
 #include <assert.h>
-#include "CSDevice.h"
-#include "CSMathUtil.h"
+#include "Device.h"
+#include "MathUtil.h"
 #include <ctime>
 #include <windows.h>
 
 
-CSDevice::CSDevice() {}
-CSDevice::~CSDevice() {}
-void CSDevice::InitDevice(HDC hdc, int w, int h) {
+Device::Device() {}
+Device::~Device() {}
+void Device::InitDevice(HDC hdc, int w, int h) {
 	screenHDC = hdc;
 	deviceWidth = w;
 	deviceHeight = h;
@@ -22,7 +22,7 @@ void CSDevice::InitDevice(HDC hdc, int w, int h) {
 	tex->LoadTexture("dzw.bmp");
 }
 
-void CSDevice::Clear() {
+void Device::Clear() {
 	BitBlt(screenHDC, 0, 0, deviceWidth, deviceHeight, NULL, NULL, NULL, BLACKNESS);
 	for (int i = 0; i < deviceHeight; i++)
 	{
@@ -35,7 +35,7 @@ void CSDevice::Clear() {
 
 
 
-void CSDevice::DrawLine(Vertex v0, Vertex v1)
+void Device::DrawLine(Vertex v0, Vertex v1)
 {
 	//Bresenham with division
 	//e = old_e - 0.5  we only need to check e > 0
@@ -69,14 +69,14 @@ void CSDevice::DrawLine(Vertex v0, Vertex v1)
 		if (ZTestAndWrite(x,y, reciprocalz)) {
 			float u = Vertex::LerpFloat(v0.u, v1.u, t);
 			float v = Vertex::LerpFloat(v0.v, v1.v, t);
-			CSColor c = tex->Sample(u*z, v*z);
+			Color c = tex->Sample(u*z, v*z);
 			DrawPixel(x, y, c);
 		}
 		x += stepx;
 	}
 }
 
-bool CSDevice::ZTestAndWrite(int x, int y, float depth) {
+bool Device::ZTestAndWrite(int x, int y, float depth) {
 	if (x >= 0 && x < deviceWidth&&y >= 0 && y < deviceHeight) {
 		if (zBuffer[x][y] < depth) {
 			zBuffer[x][y] = depth;
@@ -88,7 +88,7 @@ bool CSDevice::ZTestAndWrite(int x, int y, float depth) {
 
 
 
-void CSDevice::DrawTopFlatTriangle(Vertex v0, Vertex v1, Vertex v2) {
+void Device::DrawTopFlatTriangle(Vertex v0, Vertex v1, Vertex v2) {
 	float x0 = v0.pos.x;
 	float y0 = v0.pos.y;
 	float x1 = v1.pos.x;
@@ -100,16 +100,16 @@ void CSDevice::DrawTopFlatTriangle(Vertex v0, Vertex v1, Vertex v2) {
 		//x is lerped in DrawLine
 		float t = (y - y0) / (y2 - y0);
 		float xl = (x1 - x2)*(y - y2) / (y1 - y2) + x2;
-		Vertex vl(CSVector3(xl, y, 0), CSColor::None(), 0, 0);
+		Vertex vl(Vector3(xl, y, 0), Color::None(), 0, 0);
 		vl.LerpVertexData(v1, v2, t);
 		float xr = (x0 - x2)*(y - y2) / (y0 - y2) + x2;
-		Vertex vr(CSVector3(xr, y, 0), CSColor::None(), 0, 0);
+		Vertex vr(Vector3(xr, y, 0), Color::None(), 0, 0);
 		vr.LerpVertexData(v0, v2, t);
 		DrawLine(vl, vr);
 	}
 }
 
-void CSDevice::DrawBottomFlatTriangle(Vertex v0, Vertex v1, Vertex v2) {
+void Device::DrawBottomFlatTriangle(Vertex v0, Vertex v1, Vertex v2) {
 	float x0 = v0.pos.x;
 	float y0 = v0.pos.y;
 	float x1 = v1.pos.x;
@@ -121,17 +121,17 @@ void CSDevice::DrawBottomFlatTriangle(Vertex v0, Vertex v1, Vertex v2) {
 		//x is lerped in DrawLine
 		float t = (y - y0) / (y2 - y0);
 		float xl = (x1 - x0)*(y - y0) / (y1 - y0) + x0;
-		Vertex vl(CSVector3(xl, y, 0), CSColor::None(), 0, 0);
+		Vertex vl(Vector3(xl, y, 0), Color::None(), 0, 0);
 		vl.LerpVertexData(v0, v1, t);
 		float xr = (x2 - x0)*(y - y0) / (y2 - y0) + x0;
-		Vertex vr(CSVector3(xr, y, 0), CSColor::None(), 0, 0);
+		Vertex vr(Vector3(xr, y, 0), Color::None(), 0, 0);
 		vr.LerpVertexData(v0, v2, t);
 		DrawLine(vl, vr);
 	}
 }
 
 
-void CSDevice::RasterizeTriangle(Vertex v0, Vertex v1, Vertex v2) {
+void Device::RasterizeTriangle(Vertex v0, Vertex v1, Vertex v2) {
 	if (v0.pos.y > v2.pos.y) {
 		std::swap(v0, v2);
 	}
@@ -165,7 +165,7 @@ void CSDevice::RasterizeTriangle(Vertex v0, Vertex v1, Vertex v2) {
 		float x3 = (x0 - x2)*(y3 - y2) / (y0 - y2) + x2;
 
 
-		Vertex v3(CSVector3(x3, y3, 0), CSColor::None(), 0, 0);
+		Vertex v3(Vector3(x3, y3, 0), Color::None(), 0, 0);
 		float t = (y3 - y0) / (y2 - y0);
 		v3.LerpVertexData(v0, v2, t);
 
@@ -176,15 +176,15 @@ void CSDevice::RasterizeTriangle(Vertex v0, Vertex v1, Vertex v2) {
 }
 
 
-inline void CSDevice::DrawPixel(int x, int y, CSColor c = CSColor::red())
+inline void Device::DrawPixel(int x, int y, Color c = Color::red())
 {
-	SetPixel(screenHDC, x, y, CSColor::ColorToColorRef(c));
+	SetPixel(screenHDC, x, y, Color::ColorToColorRef(c));
 }
 
 //MVP
 //1.world = modeal*SRT
-CSMatrix CSDevice::GenScaleMatrix(const CSVector3& v) {
-	CSMatrix m = CSMatrix::Identity();
+Matrix Device::GenScaleMatrix(const Vector3& v) {
+	Matrix m = Matrix::Identity();
 	m.value[0][0] = v.x;
 	m.value[1][1] = v.y;
 	m.value[2][2] = v.z;
@@ -195,17 +195,17 @@ CSMatrix CSDevice::GenScaleMatrix(const CSVector3& v) {
 //y' = r*sin(a+b) = sin(a)x+cos(a)*y
 // [ cos(a)  sin(a)]  rotations matrix
 // [-sin(a)  cos(a)]
-CSMatrix CSDevice::GenRotateMatrix(const CSVector3& v) {
-	CSMatrix rotX = GenRotateMatrixMatrixOnOneAxis(v.x, 1, 2);
-	CSMatrix rotY = GenRotateMatrixMatrixOnOneAxis(v.y, 2, 0);
-	CSMatrix rotZ = GenRotateMatrixMatrixOnOneAxis(v.z, 0, 1);
+Matrix Device::GenRotateMatrix(const Vector3& v) {
+	Matrix rotX = GenRotateMatrixMatrixOnOneAxis(v.x, 1, 2);
+	Matrix rotY = GenRotateMatrixMatrixOnOneAxis(v.y, 2, 0);
+	Matrix rotZ = GenRotateMatrixMatrixOnOneAxis(v.z, 0, 1);
 	return rotX * rotY*rotZ;
 }
 
 //when rotate on x, wont change x, but put rotation matrix on y and z, same as other two
 //pass i1 and i2 as index for the axis that need to change.
-CSMatrix CSDevice::GenRotateMatrixMatrixOnOneAxis(float angle, int i1, int i2) {
-	CSMatrix m = CSMatrix::Identity();
+Matrix Device::GenRotateMatrixMatrixOnOneAxis(float angle, int i1, int i2) {
+	Matrix m = Matrix::Identity();
 	float cosValue = cos(angle);
 	float sinValue = sin(angle);
 	m.value[i1][i1] = cosValue;
@@ -215,8 +215,8 @@ CSMatrix CSDevice::GenRotateMatrixMatrixOnOneAxis(float angle, int i1, int i2) {
 	return m;
 }
 
-CSMatrix CSDevice::GenTranslateMatrix(const CSVector3& v) {
-	CSMatrix m = CSMatrix::Identity();
+Matrix Device::GenTranslateMatrix(const Vector3& v) {
+	Matrix m = Matrix::Identity();
 	m.value[3][0] = v.x;
 	m.value[3][1] = v.y;
 	m.value[3][2] = v.z;
@@ -231,19 +231,19 @@ CSMatrix CSDevice::GenTranslateMatrix(const CSVector3& v) {
 //WTC^-1 = (RT)^-1 = (T^-1)(R^-1)
 //T^-1: change x,y,z to reverse value
 //R^-1: R is a othogonal matrix, so M*M^T = I  so M^T=M^-1
-CSMatrix CSDevice::GenCameraMatrix(const CSVector3& eyePos, const CSVector3& lookPos, const CSVector3& upAxis) {
+Matrix Device::GenCameraMatrix(const Vector3& eyePos, const Vector3& lookPos, const Vector3& upAxis) {
 	//use left hand. thumb is N(look dir,z), index finger is Up, miggle finger is right.
 	//when do cross multiply, use right hand's fingers go from thumb to index finger, thumb is the dir
-	CSVector3 N = lookPos - eyePos;
+	Vector3 N = lookPos - eyePos;
 	N.Normalize();
-	CSVector3 V = CSVector3::Cross(upAxis, N);
+	Vector3 V = Vector3::Cross(upAxis, N);
 	V.Normalize();
-	CSVector3 U = CSVector3::Cross(N, V);
+	Vector3 U = Vector3::Cross(N, V);
 	U.Normalize();
-	float transX = -CSVector3::Dot(V, eyePos);
-	float transY = -CSVector3::Dot(U, eyePos);
-	float transZ = -CSVector3::Dot(N, eyePos);
-	CSMatrix m;
+	float transX = -Vector3::Dot(V, eyePos);
+	float transY = -Vector3::Dot(U, eyePos);
+	float transZ = -Vector3::Dot(N, eyePos);
+	Matrix m;
 	m.value[0][0] = V.x; m.value[0][1] = U.x;m.value[0][2] = N.x;
 	m.value[1][0] = V.y; m.value[1][1] = U.y;m.value[1][2] = N.y;
 	m.value[2][0] = V.z; m.value[2][1] = U.z;m.value[2][2] = N.z;
@@ -259,9 +259,9 @@ CSMatrix CSDevice::GenCameraMatrix(const CSVector3& eyePos, const CSVector3& loo
 //H/2 = tan(0.5*fov) * N m[1][1] = 1/tan(0.5fov)
 //W = H*Aspect m[0][0] = 1/(tan(0.5fov)*Aspect)  aspect = screenW/screenH
 //fov is pass in as degree
-CSMatrix CSDevice::GenProjectionMatrix(float fov, float aspect, float nearPlane, float farPlane) {
-	float tanValue = tan(CSMathUtil::DegToArc(0.5*fov));
-	CSMatrix m;
+Matrix Device::GenProjectionMatrix(float fov, float aspect, float nearPlane, float farPlane) {
+	float tanValue = tan(MathUtil::DegToArc(0.5*fov));
+	Matrix m;
 	m.value[0][0] = 1.0f / (tanValue * aspect);
 	m.value[1][1] = 1.0f / (tanValue);
 	m.value[2][2] = farPlane / (farPlane - nearPlane);
@@ -271,21 +271,21 @@ CSMatrix CSDevice::GenProjectionMatrix(float fov, float aspect, float nearPlane,
 }
 
 
-CSMatrix CSDevice::GetMVPMatrix() {
+Matrix Device::GetMVPMatrix() {
 	//TODO: bug. when GenRotateMatrix(CSVector3(count++ * 0.002f, 0, 0));, the transform looks weird.
 	float currentTime = timeGetTime()*0.001f;
-	float rotation = sin(currentTime/10)*CSMathUtil::PI_F;
-	CSMatrix scaleM = GenScaleMatrix(CSVector3(1, 1, 1));
-	CSMatrix rotM = GenRotateMatrix(CSVector3(0, rotation, 0));
-	CSMatrix transM = GenTranslateMatrix(CSVector3(0, 0, 0));
-	CSMatrix worldM = scaleM * rotM*transM;
-	CSMatrix cameraM = GenCameraMatrix(CSVector3(0, 0, -5), CSVector3(0, 0, 0), CSVector3(0, 1, 0));
-	CSMatrix projM = GenProjectionMatrix(60, (float)deviceWidth / deviceHeight, 0.1f, 30);
+	float rotation = sin(currentTime/10)*MathUtil::PI_F;
+	Matrix scaleM = GenScaleMatrix(Vector3(1, 1, 1));
+	Matrix rotM = GenRotateMatrix(Vector3(0, rotation, 0));
+	Matrix transM = GenTranslateMatrix(Vector3(0, 0, 0));
+	Matrix worldM = scaleM * rotM*transM;
+	Matrix cameraM = GenCameraMatrix(Vector3(0, 0, -5), Vector3(0, 0, 0), Vector3(0, 1, 0));
+	Matrix projM = GenProjectionMatrix(60, (float)deviceWidth / deviceHeight, 0.1f, 30);
 	return worldM * cameraM*projM;
 
 }
 
-void CSDevice::DrawPrimitive(Vertex v1, Vertex v2, Vertex v3, const CSMatrix& mvp) {
+void Device::DrawPrimitive(Vertex v1, Vertex v2, Vertex v3, const Matrix& mvp) {
 	v1.pos = v1.pos*mvp;
 	v2.pos = v2.pos*mvp;
 	v3.pos = v3.pos*mvp;
@@ -296,7 +296,7 @@ void CSDevice::DrawPrimitive(Vertex v1, Vertex v2, Vertex v3, const CSMatrix& mv
 
 }
 
-inline void CSDevice::PrepareRasterization(Vertex& vertex)
+inline void Device::PrepareRasterization(Vertex& vertex)
 {
 	float reciprocalW = 1.0f / vertex.pos.w;
 	vertex.pos.x = (vertex.pos.x*reciprocalW + 1.0f)*0.5f*deviceWidth;
@@ -312,26 +312,26 @@ inline void CSDevice::PrepareRasterization(Vertex& vertex)
 
 //x:(-1,1)  to (0,width)
 //y:(-1,1) to (height,0)
-CSVector3 CSDevice::GetScreenCoord(const CSVector3& v) {
+Vector3 Device::GetScreenCoord(const Vector3& v) {
 	float reciprocalW = 1.0f / v.w;
 	float x = (v.x*reciprocalW + 1.0f)*0.5f*deviceWidth;
 	float y = (1.0 - v.y*reciprocalW) * 0.5*deviceHeight;
 	float z = 1 / v.z;
-	return CSVector3(x, y, z);
+	return Vector3(x, y, z);
 }
 
-void CSDevice::DrawTrangle3D(const CSVector3& v1, const CSVector3& v2, const CSVector3& v3, const CSMatrix& mvp) {
-	CSVector3 vs1 = v1 * mvp;
-	CSVector3 vs2 = v2 * mvp;
-	CSVector3 vs3 = v3 * mvp;
-	CSVector3 ve1 = GetScreenCoord(vs1);
-	CSVector3 ve2 = GetScreenCoord(vs2);
-	CSVector3 ve3 = GetScreenCoord(vs3);
+void Device::DrawTrangle3D(const Vector3& v1, const Vector3& v2, const Vector3& v3, const Matrix& mvp) {
+	Vector3 vs1 = v1 * mvp;
+	Vector3 vs2 = v2 * mvp;
+	Vector3 vs3 = v3 * mvp;
+	Vector3 ve1 = GetScreenCoord(vs1);
+	Vector3 ve2 = GetScreenCoord(vs2);
+	Vector3 ve3 = GetScreenCoord(vs3);
 	DrawTriangle(ve1.x, ve1.y, ve2.x, ve2.y, ve3.x, ve3.y);
 }
 
 
-void CSDevice::DrawTriangle(int x0, int y0, int x1, int y1, int x2, int y2, CSColor c) {
+void Device::DrawTriangle(int x0, int y0, int x1, int y1, int x2, int y2, Color c) {
 	//sort three point based on y
 	if (y0 > y2) {
 		std::swap(x0, x2);
@@ -373,7 +373,7 @@ void CSDevice::DrawTriangle(int x0, int y0, int x1, int y1, int x2, int y2, CSCo
 
 
 //anti clock wise, (x0,y0) is the top
-void CSDevice::DrawBottomFlatTriangle(int x0, int y0, int x1, int y1, int x2, int y2, CSColor c) {
+void Device::DrawBottomFlatTriangle(int x0, int y0, int x1, int y1, int x2, int y2, Color c) {
 	for (int y = y0;y <= y1;y++) {
 		int xl = (x1 - x0)*(y - y0) / (y1 - y0) + x0;
 		int xr = (x2 - x0)*(y - y0) / (y2 - y0) + x0;
@@ -381,7 +381,7 @@ void CSDevice::DrawBottomFlatTriangle(int x0, int y0, int x1, int y1, int x2, in
 	}
 }
 //(x2,y2) is the bottom
-void CSDevice::DrawTopFlatTriangle(int x0, int y0, int x1, int y1, int x2, int y2, CSColor c) {
+void Device::DrawTopFlatTriangle(int x0, int y0, int x1, int y1, int x2, int y2, Color c) {
 	for (int y = y0;y <= y2;y++) {
 		int xl = (x1 - x2)*(y - y2) / (y1 - y2) + x2;
 		int xr = (x0 - x2)*(y - y2) / (y0 - y2) + x2;
@@ -409,7 +409,7 @@ void CSDevice::DrawTopFlatTriangle(int x0, int y0, int x1, int y1, int x2, int y
 
 
 ////https://zhuanlan.zhihu.com/p/20213658
-void CSDevice::DrawLine(int x0, int y0, int x1, int y1, CSColor c = CSColor::red())
+void Device::DrawLine(int x0, int y0, int x1, int y1, Color c = Color::red())
 {
 	//Bresenham with division
 	//e = old_e - 0.5  we only need to check e > 0

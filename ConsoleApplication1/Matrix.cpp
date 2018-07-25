@@ -1,8 +1,8 @@
 #include "stdafx.h"
-#include "CSMatrix.h"
+#include "Matrix.h"
 
 
-CSMatrix::CSMatrix()
+Matrix::Matrix()
 {
 	for (int i = 0;i < 4;i++) {
 		for (int j = 0;j < 4;j++) {
@@ -12,7 +12,7 @@ CSMatrix::CSMatrix()
 }
 
 
-CSMatrix::CSMatrix(const float v[4][4]) {
+Matrix::Matrix(const float v[4][4]) {
 	for (int i = 0;i < 4;i++) {
 		for (int j = 0;j < 4;j++) {
 			value[i][j] = v[i][j];
@@ -20,12 +20,12 @@ CSMatrix::CSMatrix(const float v[4][4]) {
 	}
 }
 
-CSMatrix::~CSMatrix()
+Matrix::~Matrix()
 {
 }
 
-CSMatrix CSMatrix::operator + (const CSMatrix& right) const {
-	CSMatrix m;
+Matrix Matrix::operator + (const Matrix& right) const {
+	Matrix m;
 	for (int i = 0;i < 4;i++) {
 		for (int j = 0;j < 4;j++) {
 			m.value[i][j] = value[i][j] + right.value[i][j];
@@ -33,8 +33,8 @@ CSMatrix CSMatrix::operator + (const CSMatrix& right) const {
 	}
 	return m;
 }
-CSMatrix CSMatrix::operator - (const CSMatrix& right) const {
-	CSMatrix m;
+Matrix Matrix::operator - (const Matrix& right) const {
+	Matrix m;
 	for (int i = 0;i < 4;i++) {
 		for (int j = 0;j < 4;j++) {
 			m.value[i][j] = value[i][j] - right.value[i][j];
@@ -42,8 +42,8 @@ CSMatrix CSMatrix::operator - (const CSMatrix& right) const {
 	}
 	return m;
 }
-CSMatrix CSMatrix::operator * (const CSMatrix& right) const {
-	CSMatrix m;
+Matrix Matrix::operator * (const Matrix& right) const {
+	Matrix m;
 	for (int i = 0;i < 4;i++) {
 		for (int j = 0;j < 4;j++) {
 			for (int k = 0;k < 4;k++) {
@@ -53,8 +53,8 @@ CSMatrix CSMatrix::operator * (const CSMatrix& right) const {
 	}
 	return m;
 }
-CSMatrix CSMatrix::operator * (float k) const {
-	CSMatrix m;
+Matrix Matrix::operator * (float k) const {
+	Matrix m;
 	for (int i = 0;i < 4;i++) {
 		for (int j = 0;j < 4;j++) {
 			m.value[i][j] = value[i][j] * k;
@@ -63,7 +63,7 @@ CSMatrix CSMatrix::operator * (float k) const {
 	return m;
 }
 
-void CSMatrix::Transpose() {
+void Matrix::Transpose() {
 	for (int i = 0;i < 4;i++) {
 		for (int j = 0;j < 4;j++) {
 			std::swap(value[i][j], value[j][i]);
@@ -71,7 +71,7 @@ void CSMatrix::Transpose() {
 	}
 }
 
-std::ostream& operator<< (std::ostream& os, const CSMatrix& m) {
+std::ostream& operator<< (std::ostream& os, const Matrix& m) {
 	for (int i = 0;i < 4;i++) {
 		for (int j = 0;j < 4;j++) {
 			os << "[" << m.value[i][j] << "] ";
