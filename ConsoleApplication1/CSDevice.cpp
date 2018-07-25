@@ -15,12 +15,13 @@ void CSDevice::InitDevice(HDC hdc, int w, int h) {
 	deviceHeight = h;
 
 	tex = new Texture();
-	tex->LoadTexture("sunshineRainbowUnicorn.bmp");
+	tex->LoadTexture("test.bmp");
 }
 
 void CSDevice::Clear() {
 	BitBlt(screenHDC, 0, 0, deviceWidth, deviceHeight, NULL, NULL, NULL, BLACKNESS);
 }
+
 
 
 void CSDevice::DrawLine(Vertex v0, Vertex v1)
@@ -45,9 +46,18 @@ void CSDevice::DrawLine(Vertex v0, Vertex v1)
 	//TODO: better way to solve dx+1?
 	for (int i = 0;i <= dx+1;i++) {
 		float t = (x - x0) / (x1 - x0);
+		//perspective-correct interpolation.
+		//when graphic rotate, part of it is closer to screen, 
+		//so the center of the graphic on the screen is not the same as the center on the texture.
+		//it is actually the reciprocal of the z value, 
+		//so we save reciprocal of z  as z, and multiply 1/z on u and v in PrepareRasterization
+		//and when lerp z and u,v, we lerp with the value that multiplied 1/z, then multiply z
+		//proof: http://www.cnblogs.com/cys12345/archive/2009/03/16/1413821.html
+		float reciprocalz = Vertex::LerpFloat(v0.pos.z, v1.pos.z, t);
+		float z = 1.0f / reciprocalz;
 		float u = Vertex::LerpFloat(v0.u, v1.u, t);
 		float v = Vertex::LerpFloat(v0.v, v1.v, t);
-		CSColor c = tex->Sample(u, v);
+		CSColor c = tex->Sample(u*z, v*z);
 		DrawPixel(x, y, c);
 		x += stepx;
 	}
@@ -269,6 +279,8 @@ inline void CSDevice::PrepareRasterization(Vertex& vertex)
 	vertex.pos.x = (vertex.pos.x*reciprocalW + 1.0f)*0.5f*deviceWidth;
 	vertex.pos.y = (1.0 - vertex.pos.y*reciprocalW) * 0.5*deviceHeight;
 	vertex.pos.z = 1 / vertex.pos.z;
+	vertex.u *= vertex.pos.z;
+	vertex.v *= vertex.pos.z;
 }
 
 
