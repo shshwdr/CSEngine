@@ -1,5 +1,5 @@
 #pragma once
-
+#include <Windows.h>
 struct CSColor
 {
 public:
@@ -16,5 +16,7 @@ public:
 	static const CSColor red() { return CSColor(1, 0, 0, 1); }
 	static const CSColor None() { return CSColor(0, 0, 0, 0); }
 	static const CSColor Lerp(const CSColor& c1, const CSColor& c2, float t);
+	static const CSColor ColorRefToColor(COLORREF colorRef);
+	static const COLORREF ColorToColorRef(CSColor colorRef);
 };
 

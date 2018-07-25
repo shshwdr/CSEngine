@@ -155,7 +155,7 @@ void CSDevice::RasterizeTriangle(Vertex v0, Vertex v1, Vertex v2) {
 
 inline void CSDevice::DrawPixel(int x, int y, CSColor c = CSColor::red())
 {
-	SetPixel(screenHDC, x, y, RGB(255 * c.r, 255 * c.g, 255 * c.b));
+	SetPixel(screenHDC, x, y, CSColor::ColorToColorRef(c));
 }
 
 //MVP
