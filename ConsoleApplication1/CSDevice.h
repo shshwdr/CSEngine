@@ -16,7 +16,7 @@ private:
 	int deviceHeight;
 	HDC screenHDC;
 	Texture *tex;
-
+	float** zBuffer;
 #pragma region outdated draw
 	void DrawBottomFlatTriangle(int x0, int y0, int x1, int y1, int x2, int y2, CSColor c = CSColor::red());
 	void DrawTopFlatTriangle(int x0, int y0, int x1, int y1, int x2, int y2, CSColor c = CSColor::red());
@@ -26,6 +26,8 @@ private:
 #pragma endregion
 
 	void DrawLine(Vertex v0, Vertex v1);
+
+	bool ZTestAndWrite(int x, int y, float depth);
 
 	void DrawTopFlatTriangle(Vertex v0, Vertex v1, Vertex v2);
 

@@ -47,8 +47,50 @@ Mesh* Mesh::CreatePlane() {
 	return mesh;
 }
 
-Mesh* Mesh::CreateCube() {
+Mesh* Mesh::CreateCube()
+{
 	Mesh* mesh = new Mesh();
+	mesh->AddVertexData(-1.0f, -1.0f, -1.0f, 0.0f, 0.0f);
+	mesh->AddVertexData(1.0f, -1.0f, -1.0f, 1.0f, 0.0f);
+	mesh->AddVertexData(1.0f, 1.0f, -1.0f, 1.0f, 1.0f);
+	mesh->AddVertexData(1.0f, 1.0f, -1.0f, 1.0f, 1.0f);
+	mesh->AddVertexData(-1.0f, 1.0f, -1.0f, 0.0f, 1.0f);
+	mesh->AddVertexData(-1.0f, -1.0f, -1.0f, 0.0f, 0.0f);
+
+	mesh->AddVertexData(-1.0f, -1.0f, 1.0f, 0.0f, 0.0f);
+	mesh->AddVertexData(1.0f, -1.0f, 1.0f, 1.0f, 0.0f);
+	mesh->AddVertexData(1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+	mesh->AddVertexData(1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+	mesh->AddVertexData(-1.0f, 1.0f, 1.0f, 0.0f, 1.0f);
+	mesh->AddVertexData(-1.0f, -1.0f, 1.0f, 0.0f, 0.0f);
+
+	mesh->AddVertexData(-1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
+	mesh->AddVertexData(-1.0f, 1.0f, -1.0f, 1.0f, 1.0f);
+	mesh->AddVertexData(-1.0f, -1.0f, -1.0f, 0.0f, 1.0f);
+	mesh->AddVertexData(-1.0f, -1.0f, -1.0f, 0.0f, 1.0f);
+	mesh->AddVertexData(-1.0f, -1.0f, 1.0f, 0.0f, 0.0f);
+	mesh->AddVertexData(-1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
+
+	mesh->AddVertexData(1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
+	mesh->AddVertexData(1.0f, 1.0f, -1.0f, 1.0f, 1.0f);
+	mesh->AddVertexData(1.0f, -1.0f, -1.0f, 0.0f, 1.0f);
+	mesh->AddVertexData(1.0f, -1.0f, -1.0f, 0.0f, 1.0f);
+	mesh->AddVertexData(1.0f, -1.0f, 1.0f, 0.0f, 0.0f);
+	mesh->AddVertexData(1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
+
+	mesh->AddVertexData(-1.0f, -1.0f, -1.0f, 0.0f, 1.0f);
+	mesh->AddVertexData(1.0f, -1.0f, -1.0f, 1.0f, 1.0f);
+	mesh->AddVertexData(1.0f, -1.0f, 1.0f, 1.0f, 0.0f);
+	mesh->AddVertexData(1.0f, -1.0f, 1.0f, 1.0f, 0.0f);
+	mesh->AddVertexData(-1.0f, -1.0f, 1.0f, 0.0f, 0.0f);
+	mesh->AddVertexData(-1.0f, -1.0f, -1.0f, 0.0f, 1.0f);
+
+	mesh->AddVertexData(-1.0f, 1.0f, -1.0f, 0.0f, 1.0f);
+	mesh->AddVertexData(1.0f, 1.0f, -1.0f, 1.0f, 1.0f);
+	mesh->AddVertexData(1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
+	mesh->AddVertexData(1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
+	mesh->AddVertexData(-1.0f, 1.0f, 1.0f, 0.0f, 0.0f);
+	mesh->AddVertexData(-1.0f, 1.0f, -1.0f, 0.0f, 1.0f);
 	return mesh;
 }
 void Mesh::DrawMesh(CSDevice* device) {
@@ -71,7 +113,8 @@ void Mesh::DrawElement(CSDevice* device) {
 }
 void Mesh::DrawArray(CSDevice* device) {
 	CSMatrix mvp = device->GetMVPMatrix();
-	for (int i = 0;i < indexBuffer.size();i += 3) {
+	for (int i = 0; i < vertexBuffer.size(); i = i + 3)
+	{
 		Vertex p1 = vertexBuffer[i];
 		Vertex p2 = vertexBuffer[i + 1];
 		Vertex p3 = vertexBuffer[i + 2];

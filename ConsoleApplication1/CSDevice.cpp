@@ -13,13 +13,24 @@ void CSDevice::InitDevice(HDC hdc, int w, int h) {
 	screenHDC = hdc;
 	deviceWidth = w;
 	deviceHeight = h;
-
 	tex = new Texture();
-	tex->LoadTexture("test.bmp");
+	zBuffer = new float*[deviceHeight];
+	for (int i = 0; i < deviceHeight; i++)
+	{
+		zBuffer[i] = new float[deviceWidth];
+	}
+	tex->LoadTexture("dzw.bmp");
 }
 
 void CSDevice::Clear() {
 	BitBlt(screenHDC, 0, 0, deviceWidth, deviceHeight, NULL, NULL, NULL, BLACKNESS);
+	for (int i = 0; i < deviceHeight; i++)
+	{
+		for (int j = 0; j < deviceWidth; j++)
+		{
+			zBuffer[i][j] = 100;
+		}
+	}
 }
 
 
@@ -41,8 +52,8 @@ void CSDevice::DrawLine(Vertex v0, Vertex v1)
 		stepx = -1;
 		dx = -dx;
 	}
-	float x = x0;
-	float y = y0;
+	int x = x0;
+	int y = y0;
 	//TODO: better way to solve dx+1?
 	for (int i = 0;i <= dx+1;i++) {
 		float t = (x - x0) / (x1 - x0);
@@ -55,12 +66,24 @@ void CSDevice::DrawLine(Vertex v0, Vertex v1)
 		//proof: http://www.cnblogs.com/cys12345/archive/2009/03/16/1413821.html
 		float reciprocalz = Vertex::LerpFloat(v0.pos.z, v1.pos.z, t);
 		float z = 1.0f / reciprocalz;
-		float u = Vertex::LerpFloat(v0.u, v1.u, t);
-		float v = Vertex::LerpFloat(v0.v, v1.v, t);
-		CSColor c = tex->Sample(u*z, v*z);
-		DrawPixel(x, y, c);
+		if (ZTestAndWrite(x,y,z)) {
+			float u = Vertex::LerpFloat(v0.u, v1.u, t);
+			float v = Vertex::LerpFloat(v0.v, v1.v, t);
+			CSColor c = tex->Sample(u*z, v*z);
+			DrawPixel(x, y, c);
+		}
 		x += stepx;
 	}
+}
+
+bool CSDevice::ZTestAndWrite(int x, int y, float depth) {
+	if (x >= 0 && x < deviceWidth&&y >= 0 && y < deviceHeight) {
+		if (zBuffer[x][y] > depth) {
+			zBuffer[x][y] = depth;
+			return true;
+		}
+	}
+	return false;
 }
 
 
@@ -251,7 +274,7 @@ CSMatrix CSDevice::GenProjectionMatrix(float fov, float aspect, float nearPlane,
 CSMatrix CSDevice::GetMVPMatrix() {
 	//TODO: bug. when GenRotateMatrix(CSVector3(count++ * 0.002f, 0, 0));, the transform looks weird.
 	float currentTime = timeGetTime()*0.001f;
-	float rotation = sin(currentTime)*CSMathUtil::PI_F;
+	float rotation = sin(currentTime/10)*CSMathUtil::PI_F;
 	CSMatrix scaleM = GenScaleMatrix(CSVector3(1, 1, 1));
 	CSMatrix rotM = GenRotateMatrix(CSVector3(0, rotation, 0));
 	CSMatrix transM = GenTranslateMatrix(CSVector3(0, 0, 0));
