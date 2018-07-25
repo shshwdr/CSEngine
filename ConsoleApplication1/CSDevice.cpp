@@ -28,7 +28,7 @@ void CSDevice::Clear() {
 	{
 		for (int j = 0; j < deviceWidth; j++)
 		{
-			zBuffer[i][j] = 100;
+			zBuffer[i][j] = 0.0f;
 		}
 	}
 }
@@ -66,7 +66,7 @@ void CSDevice::DrawLine(Vertex v0, Vertex v1)
 		//proof: http://www.cnblogs.com/cys12345/archive/2009/03/16/1413821.html
 		float reciprocalz = Vertex::LerpFloat(v0.pos.z, v1.pos.z, t);
 		float z = 1.0f / reciprocalz;
-		if (ZTestAndWrite(x,y,z)) {
+		if (ZTestAndWrite(x,y, reciprocalz)) {
 			float u = Vertex::LerpFloat(v0.u, v1.u, t);
 			float v = Vertex::LerpFloat(v0.v, v1.v, t);
 			CSColor c = tex->Sample(u*z, v*z);
@@ -78,7 +78,7 @@ void CSDevice::DrawLine(Vertex v0, Vertex v1)
 
 bool CSDevice::ZTestAndWrite(int x, int y, float depth) {
 	if (x >= 0 && x < deviceWidth&&y >= 0 && y < deviceHeight) {
-		if (zBuffer[x][y] > depth) {
+		if (zBuffer[x][y] < depth) {
 			zBuffer[x][y] = depth;
 			return true;
 		}
