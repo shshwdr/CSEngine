@@ -27,7 +27,7 @@ Mesh* Mesh::CreateModel(const char * filename) {
 	for (Vector3 v : model.verts) {
 		mesh->AddVertexData(v.x, v.y, v.z, 0, 0);
 	}
-	//mesh->indexBuffer = model.faces;
+	mesh->indexBuffer = model.faces;
 	return mesh;
 }
 
@@ -114,16 +114,28 @@ void Mesh::DrawMesh(Device* device) {
 
 void Mesh::DrawElement(Device* device) {
 	Matrix mvp = device->GetMVPMatrix();
-	for (int i = 0;i < indexBuffer.size();i += 3) {
-		Vertex p1 = vertexBuffer[indexBuffer[i]];
-		Vertex p2 = vertexBuffer[indexBuffer[i + 1]];
-		Vertex p3 = vertexBuffer[indexBuffer[i + 2]];
-		device->DrawPrimitive(p1, p2, p3, mvp);
+	try {
+		for (int i = 0;i < indexBuffer.size();i += 3) {
+			if (i >= indexBuffer.size()) {
+
+			}
+			if (indexBuffer[i] >= vertexBuffer.size()) {
+
+			}
+			Vertex p1 = vertexBuffer[indexBuffer[i]];
+			Vertex p2 = vertexBuffer[indexBuffer[i + 1]];
+			Vertex p3 = vertexBuffer[indexBuffer[i + 2]];
+
+			device->DrawPrimitive(p1, p2, p3, mvp);
+		}
+	}
+	catch (const std::exception& e) {
+		std::cout << e.what();
 	}
 }
 void Mesh::DrawArray(Device* device) {
 	Matrix mvp = device->GetMVPMatrix();
-	for (int i = 0; i < vertexBuffer.size()-3; i = i + 3)
+	for (int i = 0; i < vertexBuffer.size(); i = i + 3)
 	{
 		Vertex p1 = vertexBuffer[i];
 		Vertex p2 = vertexBuffer[i + 1];

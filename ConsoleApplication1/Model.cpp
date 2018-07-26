@@ -26,7 +26,12 @@ Model::Model(const char* filename) {
 			verts.push_back(v);
 		}
 		else if (!line.compare(0, 2, "f ")) {
+			int fv,fvt,fvn;
 			iss >> c;
+			while (iss >> fv>>c>>fvt>>c>>fvn) {
+				fv--;
+				faces.push_back(fv);
+			}
 
 		}
 	}
