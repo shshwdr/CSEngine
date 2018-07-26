@@ -70,7 +70,7 @@ void Device::DrawLine(Vertex v0, Vertex v1)
 			float u = Vertex::LerpFloat(v0.u, v1.u, t);
 			float v = Vertex::LerpFloat(v0.v, v1.v, t);
 			Color c = tex->Sample(u*z, v*z);
-			Color c = (c+v0.color)*0.5f;
+			c = v0.color;
 			DrawPixel(x, y, c);
 		}
 		x += stepx;
@@ -291,6 +291,20 @@ void Device::DrawPrimitive(Vertex v1, Vertex v2, Vertex v3, const Matrix& mvp) {
 	v1.pos = v1.pos*mvp;
 	v2.pos = v2.pos*mvp;
 	v3.pos = v3.pos*mvp;
+	Vector3 line1 = v3.pos - v1.pos;
+	line1.z = -(1.0f / v3.pos.w - 1.0f / v1.pos.w);
+	Vector3 line2 = v2.pos - v3.pos;
+	line2.z = -(1.0f / v2.pos.w - 1.0f / v3.pos.w);
+	Vector3 n = Vector3::Cross(line1, line2);
+	n.Normalize();
+	Vector3 light_dir(0, 0, -1);
+	float intensity =  Vector3::Dot(n, light_dir);
+	//if (intensity > 0) {
+	Color color = Color(intensity * 255, intensity * 255, intensity * 255);
+	v3.color = color;
+	v1.color = color;
+	v2.color = color;
+	//}
 	PrepareRasterization(v1);
 	PrepareRasterization(v2);
 	PrepareRasterization(v3);
@@ -300,6 +314,7 @@ void Device::DrawPrimitive(Vertex v1, Vertex v2, Vertex v3, const Matrix& mvp) {
 
 inline void Device::PrepareRasterization(Vertex& vertex)
 {
+
 	float reciprocalW = 1.0f / vertex.pos.w;
 	vertex.pos.x = (vertex.pos.x*reciprocalW + 1.0f)*0.5f*deviceWidth;
 	vertex.pos.y = (1.0 - vertex.pos.y*reciprocalW) * 0.5*deviceHeight;
