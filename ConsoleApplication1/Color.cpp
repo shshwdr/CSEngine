@@ -3,7 +3,7 @@
 
 Color Color::operator+(const Color & right) const
 {
-	Color res(r + right.r, g + right.r, b + right.r, a + right.r);
+	Color res(r + right.r, g + right.g, b + right.b, a + right.a);
 	return res;
 }
 

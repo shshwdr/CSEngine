@@ -20,8 +20,8 @@ public:
 	static Mesh* CreateCube();
 	//TODO: sphere
 
-	void AddVertexData(const Vector3& pos, float u, float v, const Color& color = Color::red());
-	void AddVertexData(float px, float py, float pz, float u, float v, const Color& color = Color::red());
+	void AddVertexData(const Vector3& pos, float u, float v, const Color& color = Color::None());
+	void AddVertexData(float px, float py, float pz, float u, float v, const Color& color = Color::None());
 
 	static Mesh * CreateModel(const char * filename);
 

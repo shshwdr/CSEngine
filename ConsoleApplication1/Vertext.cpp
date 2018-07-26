@@ -18,3 +18,4 @@ void Vertex::LerpVertexData(const Vertex & left, const Vertex & right, float t)
 	u = LerpFloat(left.u, right.u, t);
 	v = LerpFloat(left.v, right.v, t);
 }
+

@@ -19,7 +19,7 @@ void Device::InitDevice(HDC hdc, int w, int h) {
 	{
 		zBuffer[i] = new float[deviceWidth];
 	}
-	tex->LoadTexture("dzw.bmp");
+	tex->LoadTexture("test.bmp");
 }
 
 void Device::Clear() {
@@ -70,6 +70,7 @@ void Device::DrawLine(Vertex v0, Vertex v1)
 			float u = Vertex::LerpFloat(v0.u, v1.u, t);
 			float v = Vertex::LerpFloat(v0.v, v1.v, t);
 			Color c = tex->Sample(u*z, v*z);
+			Color c = (c+v0.color)*0.5f;
 			DrawPixel(x, y, c);
 		}
 		x += stepx;
@@ -132,6 +133,7 @@ void Device::DrawBottomFlatTriangle(Vertex v0, Vertex v1, Vertex v2) {
 
 
 void Device::RasterizeTriangle(Vertex v0, Vertex v1, Vertex v2) {
+	
 	if (v0.pos.y > v2.pos.y) {
 		std::swap(v0, v2);
 	}
@@ -301,7 +303,7 @@ inline void Device::PrepareRasterization(Vertex& vertex)
 	float reciprocalW = 1.0f / vertex.pos.w;
 	vertex.pos.x = (vertex.pos.x*reciprocalW + 1.0f)*0.5f*deviceWidth;
 	vertex.pos.y = (1.0 - vertex.pos.y*reciprocalW) * 0.5*deviceHeight;
-	vertex.pos.z = 1 / vertex.pos.z;
+	vertex.pos.z = reciprocalW;
 	vertex.u *= vertex.pos.z;
 	vertex.v *= vertex.pos.z;
 }

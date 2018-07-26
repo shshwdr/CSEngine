@@ -116,12 +116,7 @@ void Mesh::DrawElement(Device* device) {
 	Matrix mvp = device->GetMVPMatrix();
 	try {
 		for (int i = 0;i < indexBuffer.size();i += 3) {
-			if (i >= indexBuffer.size()) {
-
-			}
-			if (indexBuffer[i] >= vertexBuffer.size()) {
-
-			}
+			
 			Vertex p1 = vertexBuffer[indexBuffer[i]];
 			Vertex p2 = vertexBuffer[indexBuffer[i + 1]];
 			Vertex p3 = vertexBuffer[indexBuffer[i + 2]];
