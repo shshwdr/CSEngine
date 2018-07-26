@@ -26,6 +26,8 @@ Model::Model(const char* filename) {
 			verts.push_back(v);
 		}
 		else if (!line.compare(0, 2, "f ")) {
+			iss >> c;
+
 		}
 	}
 

@@ -4,9 +4,10 @@
 class Model
 {
 private:
-	std::vector<Vector3> verts;
-	std::vector<std::vector<int>> faces;
+	
 public:
+	std::vector<Vector3> verts;
+	std::vector<int> faces;
 	Model(const char* filename);
 	~Model();
 	int vertCount();

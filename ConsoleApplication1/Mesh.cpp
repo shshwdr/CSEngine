@@ -21,6 +21,16 @@ void Mesh::AddVertexData(float px, float py, float pz, float u, float v, const C
 	AddVertexData(Vector3(px, py, pz), u, v, color);
 }
 
+Mesh* Mesh::CreateModel(const char * filename) {
+	Model model(filename);
+	Mesh *mesh = new Mesh();
+	for (Vector3 v : model.verts) {
+		mesh->AddVertexData(v.x, v.y, v.z, 0, 0);
+	}
+	//mesh->indexBuffer = model.faces;
+	return mesh;
+}
+
 
 Mesh* Mesh::CreateTriangle() {
 	Mesh* mesh = new Mesh();
@@ -113,7 +123,7 @@ void Mesh::DrawElement(Device* device) {
 }
 void Mesh::DrawArray(Device* device) {
 	Matrix mvp = device->GetMVPMatrix();
-	for (int i = 0; i < vertexBuffer.size(); i = i + 3)
+	for (int i = 0; i < vertexBuffer.size()-3; i = i + 3)
 	{
 		Vertex p1 = vertexBuffer[i];
 		Vertex p2 = vertexBuffer[i + 1];
