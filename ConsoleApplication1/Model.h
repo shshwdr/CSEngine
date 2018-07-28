@@ -21,5 +21,7 @@ public:
 	int faceCount();
 	//Vector3 vert(int i);
 	//std::vector<int> face(int i);
+	//Vector3 uv(int iface, int nvert);
+	Vector3 getVertice(int iface, int ipoint);
 };
 

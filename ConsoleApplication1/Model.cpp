@@ -38,7 +38,7 @@ Model::Model(const char* filename) {
 			iss >> v.z;
 			verts.push_back(v);
 		}
-		else if (!line.compare(0, 2, "vt ")) {
+		else if (!line.compare(0, 2, "vt")) {
 			iss >> c >> c;//get rid of v and t
 			Vector3 v;
 			iss >> v.x;
@@ -46,7 +46,7 @@ Model::Model(const char* filename) {
 			iss >> v.z;
 			uv.push_back(v);
 		}
-		else if (!line.compare(0, 2, "vn ")) {
+		else if (!line.compare(0, 2, "vn")) {
 			iss >> c >> c;
 			Vector3 v;
 			iss >> v.x;
@@ -58,8 +58,7 @@ Model::Model(const char* filename) {
 			int fv,fvt,fvn;
 			iss >> c;
 			while (iss >> fv>>c>>fvt>>c>>fvn) {
-				fv--;
-				Vector3 v(fv, fvt, fvn);
+				Vector3 v(fv-1, fvt-1, fvn-1);
 				faces.push_back(v);
 			}
 		}
@@ -82,4 +81,13 @@ int Model::vertCount()
 int Model::faceCount()
 {
 	return faces.size();
+}
+
+Vector3 Model::getVertice(int iface, int ipoint)
+{
+	
+	Vector3 faceV = faces[iface * 3 + ipoint];
+	Vector3 res(verts[faceV.x].x, verts[faceV.x].y, verts[faceV.x].z);
+	return res;
+
 }

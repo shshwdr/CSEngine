@@ -22,11 +22,16 @@ void Mesh::AddVertexData(float px, float py, float pz, float u, float v, const C
 }
 
 Mesh* Mesh::CreateModel(const char * filename) {
-	Model model(filename);
+	Model *model = new Model(filename);
 	Mesh *mesh = new Mesh();
-	for (Vector3 v : model.verts) {
-		mesh->AddVertexData(v.x, v.y, v.z, 0, 0);
-	}
+	////in obj file, actually face has all the info
+	//for (int i = 0;i < model.faceCount();i++) {
+	//	
+	//}
+	//for (Vector3 v : model.verts) {
+	//	mesh->AddVertexData(v.x, v.y, v.z, 0, 0);
+	//}
+	mesh->model = model;
 	return mesh;
 }
 
@@ -106,8 +111,31 @@ void Mesh::DrawMesh(Device* device) {
 	if (indexBuffer.size() > 0) {
 		DrawElement(device);
 	}
+	else if (model) {
+		DrawFaces(device);
+	}
 	else {
 		DrawArray(device);
+	}
+}
+
+void Mesh::DrawFaces(Device* device) {
+	Matrix mvp = device->GetMVPMatrix();
+	
+	try {
+		for (int i = 0;i < model->faceCount()/3;i += 1) {
+			
+			Vertex p1 ( model->getVertice(i, 0),Color::None(),0,0);
+			Vertex p2(model->getVertice(i, 1), Color::None(), 0, 0);
+			Vertex p3(model->getVertice(i, 2), Color::None(), 0, 0);
+			//Vertex p2 = vertexBuffer[faceBuffer[i + 1].x];
+			//Vertex p3 = vertexBuffer[faceBuffer[i + 2].x];
+
+			device->DrawPrimitive(p1, p2, p3, mvp);
+		}
+	}
+	catch (const std::exception& e) {
+		std::cout << e.what();
 	}
 }
 

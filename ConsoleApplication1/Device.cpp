@@ -71,6 +71,7 @@ void Device::DrawLine(Vertex v0, Vertex v1)
 			float v = Vertex::LerpFloat(v0.v, v1.v, t);
 			Color c = tex->Sample(u*z, v*z);
 			c = v0.color;
+			//c = Color::WHITE();
 			DrawPixel(x, y, c);
 		}
 		x += stepx;

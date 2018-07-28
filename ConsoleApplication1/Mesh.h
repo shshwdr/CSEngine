@@ -8,8 +8,10 @@ class Mesh
 private:
 	std::vector<Vertex> vertexBuffer;
 	std::vector<int> indexBuffer;
+	Model *model;
 
 	void DrawElement(Device* device);
+	void DrawFaces(Device* device);
 	void DrawArray(Device* device);
 
 public:
