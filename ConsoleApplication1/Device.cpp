@@ -79,7 +79,7 @@ void Device::DrawLine(Vertex v0, Vertex v1)
 
 bool Device::ZTestAndWrite(int x, int y, float depth) {
 	if (x >= 0 && x < deviceWidth&&y >= 0 && y < deviceHeight) {
-		if (zBuffer[x][y] < depth) {
+		if (x<deviceHeight&&y<deviceWidth&& zBuffer[x][y] < depth) {
 			zBuffer[x][y] = depth;
 			return true;
 		}
@@ -281,7 +281,7 @@ Matrix Device::GetMVPMatrix() {
 	Matrix rotM = GenRotateMatrix(Vector3(0, rotation, 0));
 	Matrix transM = GenTranslateMatrix(Vector3(0, 0, 0));
 	Matrix worldM = scaleM * rotM*transM;
-	Matrix cameraM = GenCameraMatrix(Vector3(0, 0, -5), Vector3(0, 0, 0), Vector3(0, 1, 0));
+	Matrix cameraM = GenCameraMatrix(Vector3(0, 0, -2), Vector3(0, 0, 0), Vector3(0, 1, 0));
 	Matrix projM = GenProjectionMatrix(60, (float)deviceWidth / deviceHeight, 0.1f, 30);
 	return worldM * cameraM*projM;
 
@@ -292,15 +292,15 @@ void Device::DrawPrimitive(Vertex v1, Vertex v2, Vertex v3, const Matrix& mvp) {
 	v2.pos = v2.pos*mvp;
 	v3.pos = v3.pos*mvp;
 	Vector3 line1 = v3.pos - v1.pos;
-	line1.z = -(1.0f / v3.pos.w - 1.0f / v1.pos.w);
-	Vector3 line2 = v2.pos - v3.pos;
-	line2.z = -(1.0f / v2.pos.w - 1.0f / v3.pos.w);
+	line1.z = (1.0f / v3.pos.w - 1.0f / v1.pos.w)*10.0;
+	Vector3 line2 = v3.pos - v2.pos;
+	line2.z = (1.0f / v3.pos.w - 1.0f / v2.pos.w)*10.0;
 	Vector3 n = Vector3::Cross(line1, line2);
 	n.Normalize();
 	Vector3 light_dir(0, 0, -1);
 	float intensity =  Vector3::Dot(n, light_dir);
 	//if (intensity > 0) {
-	Color color = Color(intensity * 255, intensity * 255, intensity * 255);
+	Color color = Color(intensity , intensity , intensity);
 	v3.color = color;
 	v1.color = color;
 	v2.color = color;

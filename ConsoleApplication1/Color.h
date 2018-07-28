@@ -14,6 +14,7 @@ public:
 	Color operator *(float v)const;
 
 	static const Color red() { return Color(1, 0, 0, 1); }
+	static const Color WHITE() { return Color(1, 1, 1, 1); }
 	static const Color None() { return Color(0, 0, 0, 0); }
 	static const Color Lerp(const Color& c1, const Color& c2, float t);
 	static const Color ColorRefToColor(COLORREF colorRef);
