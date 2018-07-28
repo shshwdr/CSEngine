@@ -5,6 +5,7 @@
 #include <time.h>
 #include <math.h>
 #include "tgaimage.h"
+#include <algorithm> 
 TGAImage::TGAImage() : data(NULL), width(0), height(0), bytespp(0) {
 }
 TGAImage::TGAImage(int w, int h, int bpp) : data(NULL), width(w), height(h), bytespp(bpp) {
@@ -243,7 +244,14 @@ bool TGAImage::unload_rle_data(std::ofstream &out) {
 	}
 	return true;
 }
+
+float TGAImage::Clamp(float min, float max, float value) {
+	return  std::max(min, std::min(value, max));
+}
+
 TGAColor TGAImage::get(int x, int y) {
+	x = Clamp(0, width-1, x);
+	y = Clamp(0, height-1, y);
 	if (!data || x<0 || y<0 || x >= width || y >= height) {
 		return TGAColor();
 	}
