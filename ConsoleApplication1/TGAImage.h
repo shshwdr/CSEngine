@@ -1,6 +1,8 @@
 #ifndef __IMAGE_H__
 #define __IMAGE_H__
 
+//https://github.com/ssloy/tinyrenderer
+
 #include <fstream>
 
 #pragma pack(push,1)

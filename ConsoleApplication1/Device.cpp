@@ -73,9 +73,9 @@ void Device::DrawLine(Vertex v0, Vertex v1)
 			TGAColor color =  model->diffuse(Vector3(u*z,v*z,0));
 			Color c = Color(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, 1);
 			//Color c = tex->Sample(u*z, v*z);
-			//c = v0.color;
+			Color light = v0.color;
 			//c = Color::WHITE();
-			DrawPixel(x, y, c);
+			DrawPixel(x, y, c*light.r);
 		}
 		x += stepx;
 	}
@@ -303,12 +303,12 @@ void Device::DrawPrimitive(Vertex v1, Vertex v2, Vertex v3, const Matrix& mvp) {
 	n.Normalize();
 	Vector3 light_dir(0, 0, -1);
 	float intensity =  Vector3::Dot(n, light_dir);
-	//if (intensity > 0) {
+	if (intensity > 0) {
 	Color color = Color(intensity , intensity , intensity);
 	v3.color = color;
 	v1.color = color;
 	v2.color = color;
-	//}
+	}
 	PrepareRasterization(v1);
 	PrepareRasterization(v2);
 	PrepareRasterization(v3);
