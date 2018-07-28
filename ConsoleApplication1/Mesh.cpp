@@ -27,7 +27,6 @@ Mesh* Mesh::CreateModel(const char * filename) {
 	for (Vector3 v : model.verts) {
 		mesh->AddVertexData(v.x, v.y, v.z, 0, 0);
 	}
-	mesh->indexBuffer = model.faces;
 	return mesh;
 }
 
