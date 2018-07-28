@@ -42,10 +42,10 @@ void Device::DrawLine(Vertex v0, Vertex v1)
 	//e = old_e - 0.5  we only need to check e > 0
 	//e *= dx so we can do e+=dy and e-=dx, then e = -0.5*dx
 	//then we do d *=2 so e = -dx, e+=2dy,e-=2dx
-	float x0 = v0.pos.x;
-	float x1 = v1.pos.x;
-	float y0 = v0.pos.y;
-	float y1 = v1.pos.y;
+	float x0 = ceil(v0.pos.x);
+	float x1 = floor(v1.pos.x);
+	float y0 = ceil(v0.pos.y);
+	float y1 = ceil(v1.pos.y);
 	assert(y1 == y0);
 	int dx =  x1 - x0;
 	int stepx = 1;
@@ -56,7 +56,7 @@ void Device::DrawLine(Vertex v0, Vertex v1)
 	int x = x0;
 	int y = y0;
 	//TODO: better way to solve dx+1?
-	for (int i = 0;i <= dx+1;i++) {
+	for (int i = 0;i <= dx;i++) {
 		float t = (x - x0) / (x1 - x0);
 		//perspective-correct interpolation.
 		//when graphic rotate, part of it is closer to screen, 
@@ -73,9 +73,9 @@ void Device::DrawLine(Vertex v0, Vertex v1)
 			TGAColor color =  model->diffuse(Vector3(u*z,v*z,0));
 			Color c = Color(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, 1);
 			//Color c = tex->Sample(u*z, v*z);
-			Color light = v0.color;
+			//Color light = v0.color;
 			//c = Color::WHITE();
-			DrawPixel(x, y, c*light.r);
+			DrawPixel(x, y, c);//*light.r);
 		}
 		x += stepx;
 	}
@@ -275,14 +275,19 @@ Matrix Device::GenProjectionMatrix(float fov, float aspect, float nearPlane, flo
 	m.value[2][3] = 1;
 	return m;
 }
-
+int count = 200;
+void Device::changeRotation(bool isAdding) {
+	float baseDegree = 5;
+	count += (isAdding ? 1 : -1)*baseDegree;
+	std::cout << count << std::endl;
+}
 
 Matrix Device::GetMVPMatrix() {
 	//TODO: bug. when GenRotateMatrix(CSVector3(count++ * 0.002f, 0, 0));, the transform looks weird.
 	float currentTime = timeGetTime()*0.001f;
 	float rotation = sin(currentTime/10)*MathUtil::PI_F;
 	Matrix scaleM = GenScaleMatrix(Vector3(1, 1, 1));
-	Matrix rotM = GenRotateMatrix(Vector3(0, rotation, 0));
+	Matrix rotM = GenRotateMatrix(Vector3(0, MathUtil::DegToArc(count), 0));
 	Matrix transM = GenTranslateMatrix(Vector3(0, 0, 0));
 	Matrix worldM = scaleM * rotM*transM;
 	Matrix cameraM = GenCameraMatrix(Vector3(0, 0, -2), Vector3(0, 0, 0), Vector3(0, 1, 0));

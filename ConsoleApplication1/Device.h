@@ -54,6 +54,7 @@ public:
 	Matrix GenTranslateMatrix(const Vector3& v);
 	Matrix GenCameraMatrix(const Vector3& eyePos, const Vector3& lookPos, const Vector3& upAxis = Vector3(0, 1, 0));
 	Matrix GenProjectionMatrix(float fov, float aspect, float nearPlane, float farPlane);
+	void changeRotation(bool isAdding);
 	Vector3 GetScreenCoord(const Vector3& v);
 	Matrix GetMVPMatrix();
 	void DrawPrimitive(Vertex v1, Vertex v2, Vertex v3, const Matrix & mvp);
