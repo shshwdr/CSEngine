@@ -14,7 +14,7 @@ void Model::load_texture(std::string filename, const char * suffix, TGAImage & i
 		texfile = texfile.substr(0, dot) + std::string(suffix);
 		bool loadSuccessfully = image.read_tga_file(texfile.c_str());
 		assert(loadSuccessfully);
-		//image.flip_vertically();
+		image.flip_vertically();
 	}
 }
 
@@ -89,5 +89,18 @@ Vector3 Model::getVertice(int iface, int ipoint)
 	Vector3 faceV = faces[iface * 3 + ipoint];
 	Vector3 res(verts[faceV.x].x, verts[faceV.x].y, verts[faceV.x].z);
 	return res;
+}
 
+
+Vector3 Model::getUV(int iface, int ipoint)
+{
+
+	Vector3 faceV = faces[iface * 3 + ipoint];
+	Vector3 test(uv[faceV.y].x, uv[faceV.y].y, uv[faceV.y].z);
+	Vector3 res(uv[faceV.y].x*diffuseMap.get_width() , uv[faceV.y].y*diffuseMap.get_height(), uv[faceV.y].z);
+	return res;
+}
+
+TGAColor Model::diffuse(Vector3 uv) {
+	return diffuseMap.get(uv.x, uv.y);
 }

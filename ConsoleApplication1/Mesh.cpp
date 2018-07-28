@@ -121,17 +121,20 @@ void Mesh::DrawMesh(Device* device) {
 
 void Mesh::DrawFaces(Device* device) {
 	Matrix mvp = device->GetMVPMatrix();
-	
+	device->model = model;
 	try {
 		for (int i = 0;i < model->faceCount()/3;i += 1) {
-			
-			Vertex p1 ( model->getVertice(i, 0),Color::None(),0,0);
-			Vertex p2(model->getVertice(i, 1), Color::None(), 0, 0);
-			Vertex p3(model->getVertice(i, 2), Color::None(), 0, 0);
+			Vertex v[3];
+			for (int j = 0;j < 3;j++) {
+
+				Vector3 v1 = model->getUV(i, j);
+				Vertex p1(model->getVertice(i, j), Color::None(), v1.x, v1.y);
+				v[j] = p1;
+			}
 			//Vertex p2 = vertexBuffer[faceBuffer[i + 1].x];
 			//Vertex p3 = vertexBuffer[faceBuffer[i + 2].x];
 
-			device->DrawPrimitive(p1, p2, p3, mvp);
+			device->DrawPrimitive(v[0], v[1], v[2], mvp);
 		}
 	}
 	catch (const std::exception& e) {

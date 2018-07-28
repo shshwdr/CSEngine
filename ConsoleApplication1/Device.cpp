@@ -5,6 +5,7 @@
 #include "MathUtil.h"
 #include <ctime>
 #include <windows.h>
+#include "TGAImage.h"
 
 
 Device::Device() {}
@@ -69,8 +70,10 @@ void Device::DrawLine(Vertex v0, Vertex v1)
 		if (ZTestAndWrite(x,y, reciprocalz)) {
 			float u = Vertex::LerpFloat(v0.u, v1.u, t);
 			float v = Vertex::LerpFloat(v0.v, v1.v, t);
-			Color c = tex->Sample(u*z, v*z);
-			c = v0.color;
+			TGAColor color =  model->diffuse(Vector3(u*z,v*z,0));
+			Color c = Color(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, 1);
+			//Color c = tex->Sample(u*z, v*z);
+			//c = v0.color;
 			//c = Color::WHITE();
 			DrawPixel(x, y, c);
 		}

@@ -7,6 +7,7 @@
 #include "Vector3.h"
 #include "Texture.h"
 #include "Vertext.h"
+#include "Model.h"
 
 //https://blog.csdn.net/puppet_master/article/details/80317178
 class Device
@@ -40,6 +41,9 @@ private:
 public:
 	Device();
 	~Device();
+
+	//temp
+	Model *model;
 	void InitDevice(HDC hdc, int screenWidtch, int screenHeight);
 	void Clear();
 	void DrawPixel(int x0, int y0, Color c);
