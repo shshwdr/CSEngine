@@ -128,7 +128,9 @@ void Mesh::DrawFaces(Device* device) {
 			for (int j = 0;j < 3;j++) {
 
 				Vector3 v1 = model->getUV(i, j);
-				Vertex p1(model->getVertice(i, j), Color::None(), v1.x, v1.y);
+				Vector3 norm = model->getNorm(i, j);
+				
+				Vertex p1(model->getVertice(i, j), Color::None(), v1.x, v1.y, model->getNorm(i,j));
 				v[j] = p1;
 			}
 			//Vertex p2 = vertexBuffer[faceBuffer[i + 1].x];

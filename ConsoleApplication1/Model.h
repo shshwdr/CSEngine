@@ -23,6 +23,7 @@ public:
 	//std::vector<int> face(int i);
 	Vector3 getUV(int iface, int ipoint);
 	TGAColor diffuse(Vector3 uv);
+	Vector3 getNorm(int iface, int ipoint);
 	Vector3 getVertice(int iface, int ipoint);
 };
 

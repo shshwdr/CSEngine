@@ -9,7 +9,7 @@ public:
 	float x, y, z, w;
 	Vector3(float fx, float fy, float fz, float fw) :x(fx), y(fy), z(fz), w(fw) {}
 	Vector3(float fx, float fy, float fz) :x(fx), y(fy), z(fz), w(1) {};
-	Vector3() {};
+	Vector3():x(0), y(0), z(0), w(1) {};
 	~Vector3();
 
 	Vector3 operator + (const Vector3& right) const;
@@ -20,10 +20,10 @@ public:
 
 	void Normalize();
 
-	float SquareMagnitude();
-	float Magnitude();
+	float SquareMagnitude() const;
+	float Magnitude() const;
 
-	Vector3 static Normalize(Vector3& v);
+	Vector3 static Normalize(const Vector3& v);
 	// a*b = |a||b|cos(angle)  
 	//a*b>0 => accute a*b=0 => right angle 
 	//when b is normalized, a*b is length when a project on b

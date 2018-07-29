@@ -35,14 +35,14 @@ Vector3 Vector3::operator * (const Matrix& m) const {
 void Vector3::Normalize() {
 	*this = *this / Magnitude();
 }
-float Vector3::SquareMagnitude() {
+float Vector3::SquareMagnitude() const {
 	return Dot(*this, *this);
 }
-float Vector3::Magnitude() {
+float Vector3::Magnitude() const {
 	return sqrt(SquareMagnitude());
 }
 
-Vector3 Vector3::Normalize(Vector3& v) {
+Vector3 Vector3::Normalize(const Vector3& v) {
 	float a = v.SquareMagnitude();
 	return v / v.Magnitude();
 }

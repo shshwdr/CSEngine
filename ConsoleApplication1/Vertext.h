@@ -9,8 +9,10 @@ public:
 	Vector3 pos;
 	Color color;
 	float u, v;
+	Vector3 norm;
+	float intense;
 	Vertex();
-	Vertex(const Vector3& p, const Color& c, float fu, float fv) :pos(p), color(c), u(fu), v(fv) {};
+	Vertex(const Vector3& p, const Color& c, float fu, float fv, Vector3 n = Vector3(),float inten = 1) :pos(p), color(c), u(fu), v(fv) ,norm(n),intense(inten){};
 	Vertex(const Vector3& p) :pos(p), color(Color::None()), u(0), v(0) {};
 	~Vertex();
 

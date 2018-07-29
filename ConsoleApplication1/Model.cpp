@@ -52,6 +52,7 @@ Model::Model(const char* filename) {
 			iss >> v.x;
 			iss >> v.y;
 			iss >> v.z;
+
 			norms.push_back(v);
 		}
 		else if (!line.compare(0, 2, "f ")) {
@@ -87,10 +88,14 @@ Vector3 Model::getVertice(int iface, int ipoint)
 {
 	
 	Vector3 faceV = faces[iface * 3 + ipoint];
-	Vector3 res(verts[faceV.x].x, verts[faceV.x].y, verts[faceV.x].z);
-	return res;
+	return verts[faceV.x];
 }
 
+
+
+TGAColor Model::diffuse(Vector3 uv) {
+	return diffuseMap.get(uv.x, uv.y);
+}
 
 Vector3 Model::getUV(int iface, int ipoint)
 {
@@ -101,6 +106,9 @@ Vector3 Model::getUV(int iface, int ipoint)
 	return res;
 }
 
-TGAColor Model::diffuse(Vector3 uv) {
-	return diffuseMap.get(uv.x, uv.y);
+Vector3 Model::getNorm(int iface, int ipoint)
+{
+
+	Vector3 faceV = faces[iface * 3 + ipoint];
+	return norms[faceV.z];
 }
