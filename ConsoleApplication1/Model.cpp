@@ -56,10 +56,10 @@ Model::Model(const char* filename) {
 			norms.push_back(v);
 		}
 		else if (!line.compare(0, 2, "f ")) {
-			int fv,fvt,fvn;
+			int fv, fvt, fvn;
 			iss >> c;
-			while (iss >> fv>>c>>fvt>>c>>fvn) {
-				Vector3 v(fv-1, fvt-1, fvn-1);
+			while (iss >> fv >> c >> fvt >> c >> fvn) {
+				Vector3 v(fv - 1, fvt - 1, fvn - 1);
 				faces.push_back(v);
 			}
 		}
@@ -86,7 +86,7 @@ int Model::faceCount()
 
 Vector3 Model::getVertice(int iface, int ipoint)
 {
-	
+
 	Vector3 faceV = faces[iface * 3 + ipoint];
 	return verts[faceV.x];
 }
@@ -99,10 +99,8 @@ TGAColor Model::diffuse(Vector3 uv) {
 
 Vector3 Model::getUV(int iface, int ipoint)
 {
-
 	Vector3 faceV = faces[iface * 3 + ipoint];
-	Vector3 test(uv[faceV.y].x, uv[faceV.y].y, uv[faceV.y].z);
-	Vector3 res(uv[faceV.y].x*diffuseMap.get_width() , uv[faceV.y].y*diffuseMap.get_height(), uv[faceV.y].z);
+	Vector3 res(uv[faceV.y].x*diffuseMap.get_width(), uv[faceV.y].y*diffuseMap.get_height(), uv[faceV.y].z);
 	return res;
 }
 

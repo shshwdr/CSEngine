@@ -8,7 +8,8 @@
 #include "Texture.h"
 #include "Vertext.h"
 #include "Model.h"
-
+//reference:
+//https://github.com/ssloy/tinyrenderer/wiki
 //https://blog.csdn.net/puppet_master/article/details/80317178
 class Device
 {

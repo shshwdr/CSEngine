@@ -47,7 +47,7 @@ void Device::DrawLine(Vertex v0, Vertex v1)
 	float y0 = ceil(v0.pos.y);
 	float y1 = ceil(v1.pos.y);
 	assert(y1 == y0);
-	int dx =  x1 - x0;
+	int dx = x1 - x0;
 	int stepx = 1;
 	if (dx < 0) {
 		stepx = -1;
@@ -67,11 +67,11 @@ void Device::DrawLine(Vertex v0, Vertex v1)
 		//proof: http://www.cnblogs.com/cys12345/archive/2009/03/16/1413821.html
 		float reciprocalz = Vertex::LerpFloat(v0.pos.z, v1.pos.z, t);
 		float z = 1.0f / reciprocalz;
-		if (ZTestAndWrite(x,y, reciprocalz)) {
+		if (ZTestAndWrite(x, y, reciprocalz)) {
 			float u = Vertex::LerpFloat(v0.u, v1.u, t);
 			float v = Vertex::LerpFloat(v0.v, v1.v, t);
 			float intense = Vertex::LerpFloat(v0.intense, v1.intense, t);
-			TGAColor color =  model->diffuse(Vector3(u*z,v*z,0));
+			TGAColor color = model->diffuse(Vector3(u*z, v*z, 0));
 			Color c = Color(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, 1);
 
 			//Color c = tex->Sample(u*z, v*z);
@@ -87,7 +87,7 @@ void Device::DrawLine(Vertex v0, Vertex v1)
 
 bool Device::ZTestAndWrite(int x, int y, float depth) {
 	if (x >= 0 && x < deviceWidth&&y >= 0 && y < deviceHeight) {
-		if (x<deviceHeight&&y<deviceWidth&& zBuffer[x][y] < depth) {
+		if (x < deviceHeight&&y < deviceWidth&& zBuffer[x][y] < depth) {
 			zBuffer[x][y] = depth;
 			return true;
 		}
@@ -141,7 +141,7 @@ void Device::DrawBottomFlatTriangle(Vertex v0, Vertex v1, Vertex v2) {
 
 
 void Device::RasterizeTriangle(Vertex v0, Vertex v1, Vertex v2) {
-	
+	//make triangle anti-clockwise
 	if (v0.pos.y > v2.pos.y) {
 		std::swap(v0, v2);
 	}
@@ -173,13 +173,9 @@ void Device::RasterizeTriangle(Vertex v0, Vertex v1, Vertex v2) {
 		float y3 = y1;
 		//put y1 into line (x0,y0) to (x2,y2)
 		float x3 = (x0 - x2)*(y3 - y2) / (y0 - y2) + x2;
-
-
 		Vertex v3(Vector3(x3, y3, 0), Color::None(), 0, 0);
 		float t = (y3 - y0) / (y2 - y0);
 		v3.LerpVertexData(v0, v2, t);
-
-
 		DrawBottomFlatTriangle(v0, v1, v3);
 		DrawTopFlatTriangle(v3, v1, v2);
 	}
@@ -289,7 +285,7 @@ void Device::changeRotation(bool isAdding) {
 Matrix Device::GetMVPMatrix() {
 	//TODO: bug. when GenRotateMatrix(CSVector3(count++ * 0.002f, 0, 0));, the transform looks weird.
 	float currentTime = timeGetTime()*0.001f;
-	float rotation = sin(currentTime/5)*MathUtil::PI_F;
+	float rotation = sin(currentTime / 5)*MathUtil::PI_F;
 	Matrix scaleM = GenScaleMatrix(Vector3(1, 1, 1));
 	Matrix rotM = GenRotateMatrix(Vector3(0, /*MathUtil::DegToArc(count)*/rotation, 0));
 	Matrix transM = GenTranslateMatrix(Vector3(0, 0, 0));
@@ -297,19 +293,20 @@ Matrix Device::GetMVPMatrix() {
 	Matrix cameraM = GenCameraMatrix(Vector3(0, 0, -2), Vector3(0, 0, 0), Vector3(0, 1, 0));
 	Matrix projM = GenProjectionMatrix(60, (float)deviceWidth / deviceHeight, 0.1f, 30);
 	return worldM * cameraM*projM;
-
 }
 
 void Device::DrawPrimitive(Vertex v1, Vertex v2, Vertex v3, const Matrix& mvp) {
 	v1.pos = v1.pos*mvp;
 	v2.pos = v2.pos*mvp;
 	v3.pos = v3.pos*mvp;
-	v1.norm = Vector3::Normalize( v1.norm*mvp);
+	v1.norm = Vector3::Normalize(v1.norm*mvp);
 	v2.norm = Vector3::Normalize(v2.norm*mvp);
 	v3.norm = Vector3::Normalize(v3.norm*mvp);
+	//todo: bug the model looks funny when light is not this
 	Vector3 light_dir(0, 0, 1);
+	//todo: what is this base??? when it is one it is hard to see the the light and dark effect
 	float base = 3;
-	v1.intense = 1-(1-Vector3::Dot(v1.norm, light_dir))*base;
+	v1.intense = 1 - (1 - Vector3::Dot(v1.norm, light_dir))*base;
 	v2.intense = 1 - (1 - Vector3::Dot(v2.norm, light_dir))*base;
 	v3.intense = 1 - (1 - Vector3::Dot(v3.norm, light_dir))*base;
 	PrepareRasterization(v1);
@@ -321,7 +318,7 @@ void Device::DrawPrimitive(Vertex v1, Vertex v2, Vertex v3, const Matrix& mvp) {
 
 inline void Device::PrepareRasterization(Vertex& vertex)
 {
-
+	//todo: don't rememmber what is this for..
 	float reciprocalW = 1.0f / vertex.pos.w;
 	vertex.pos.x = (vertex.pos.x*reciprocalW + 1.0f)*0.5f*deviceWidth;
 	vertex.pos.y = (1.0 - vertex.pos.y*reciprocalW) * 0.5*deviceHeight;

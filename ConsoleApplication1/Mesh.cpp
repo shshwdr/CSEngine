@@ -123,14 +123,13 @@ void Mesh::DrawFaces(Device* device) {
 	Matrix mvp = device->GetMVPMatrix();
 	device->model = model;
 	try {
-		for (int i = 0;i < model->faceCount()/3;i += 1) {
+		for (int i = 0;i < model->faceCount() / 3;i += 1) {
 			Vertex v[3];
 			for (int j = 0;j < 3;j++) {
-
+				//get info of j-th vector on i-th face
 				Vector3 v1 = model->getUV(i, j);
 				Vector3 norm = model->getNorm(i, j);
-				
-				Vertex p1(model->getVertice(i, j), Color::None(), v1.x, v1.y, model->getNorm(i,j));
+				Vertex p1(model->getVertice(i, j), Color::None(), v1.x, v1.y, model->getNorm(i, j));
 				v[j] = p1;
 			}
 			//Vertex p2 = vertexBuffer[faceBuffer[i + 1].x];
@@ -148,7 +147,7 @@ void Mesh::DrawElement(Device* device) {
 	Matrix mvp = device->GetMVPMatrix();
 	try {
 		for (int i = 0;i < indexBuffer.size();i += 3) {
-			
+
 			Vertex p1 = vertexBuffer[indexBuffer[i]];
 			Vertex p2 = vertexBuffer[indexBuffer[i + 1]];
 			Vertex p3 = vertexBuffer[indexBuffer[i + 2]];

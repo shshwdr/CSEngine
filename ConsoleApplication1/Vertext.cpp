@@ -18,6 +18,7 @@ void Vertex::LerpVertexData(const Vertex & left, const Vertex & right, float t)
 	u = LerpFloat(left.u, right.u, t);
 	v = LerpFloat(left.v, right.v, t);
 	//norm = Vector3::Lerp(left.norm, right.norm, t);
+	//todo: indense?
 	intense = LerpFloat(left.intense, right.intense, t);
 }
 

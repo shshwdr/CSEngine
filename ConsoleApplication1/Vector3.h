@@ -9,7 +9,7 @@ public:
 	float x, y, z, w;
 	Vector3(float fx, float fy, float fz, float fw) :x(fx), y(fy), z(fz), w(fw) {}
 	Vector3(float fx, float fy, float fz) :x(fx), y(fy), z(fz), w(1) {};
-	Vector3():x(0), y(0), z(0), w(1) {};
+	Vector3() :x(0), y(0), z(0), w(1) {};
 	~Vector3();
 
 	Vector3 operator + (const Vector3& right) const;

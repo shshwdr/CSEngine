@@ -105,18 +105,18 @@ bool TGAImage::load_rle_data(std::ifstream &in) {
 			std::cerr << "an error occured while reading the data\n";
 			return false;
 		}
-		if (chunkheader<128) {
+		if (chunkheader < 128) {
 			chunkheader++;
-			for (int i = 0; i<chunkheader; i++) {
+			for (int i = 0; i < chunkheader; i++) {
 				in.read((char *)colorbuffer.raw, bytespp);
 				if (!in.good()) {
 					std::cerr << "an error occured while reading the header\n";
 					return false;
 				}
-				for (int t = 0; t<bytespp; t++)
+				for (int t = 0; t < bytespp; t++)
 					data[currentbyte++] = colorbuffer.raw[t];
 				currentpixel++;
-				if (currentpixel>pixelcount) {
+				if (currentpixel > pixelcount) {
 					std::cerr << "Too many pixels read\n";
 					return false;
 				}
@@ -129,11 +129,11 @@ bool TGAImage::load_rle_data(std::ifstream &in) {
 				std::cerr << "an error occured while reading the header\n";
 				return false;
 			}
-			for (int i = 0; i<chunkheader; i++) {
-				for (int t = 0; t<bytespp; t++)
+			for (int i = 0; i < chunkheader; i++) {
+				for (int t = 0; t < bytespp; t++)
 					data[currentbyte++] = colorbuffer.raw[t];
 				currentpixel++;
-				if (currentpixel>pixelcount) {
+				if (currentpixel > pixelcount) {
 					std::cerr << "Too many pixels read\n";
 					return false;
 				}
@@ -207,14 +207,14 @@ bool TGAImage::unload_rle_data(std::ofstream &out) {
 	const unsigned char max_chunk_length = 128;
 	unsigned long npixels = width * height;
 	unsigned long curpix = 0;
-	while (curpix<npixels) {
+	while (curpix < npixels) {
 		unsigned long chunkstart = curpix * bytespp;
 		unsigned long curbyte = curpix * bytespp;
 		unsigned char run_length = 1;
 		bool raw = true;
-		while (curpix + run_length<npixels && run_length<max_chunk_length) {
+		while (curpix + run_length < npixels && run_length < max_chunk_length) {
 			bool succ_eq = true;
-			for (int t = 0; succ_eq && t<bytespp; t++) {
+			for (int t = 0; succ_eq && t < bytespp; t++) {
 				succ_eq = (data[curbyte + t] == data[curbyte + t + bytespp]);
 			}
 			curbyte += bytespp;
@@ -250,15 +250,15 @@ float TGAImage::Clamp(float min, float max, float value) {
 }
 
 TGAColor TGAImage::get(int x, int y) {
-	x = Clamp(0, width-1, x);
-	y = Clamp(0, height-1, y);
-	if (!data || x<0 || y<0 || x >= width || y >= height) {
+	x = Clamp(0, width - 1, x);
+	y = Clamp(0, height - 1, y);
+	if (!data || x < 0 || y < 0 || x >= width || y >= height) {
 		return TGAColor();
 	}
 	return TGAColor(data + (x + y * width)*bytespp, bytespp);
 }
 bool TGAImage::set(int x, int y, TGAColor c) {
-	if (!data || x<0 || y<0 || x >= width || y >= height) {
+	if (!data || x < 0 || y < 0 || x >= width || y >= height) {
 		return false;
 	}
 	memcpy(data + (x + y * width)*bytespp, c.raw, bytespp);
@@ -276,8 +276,8 @@ int TGAImage::get_height() {
 bool TGAImage::flip_horizontally() {
 	if (!data) return false;
 	int half = width >> 1;
-	for (int i = 0; i<half; i++) {
-		for (int j = 0; j<height; j++) {
+	for (int i = 0; i < half; i++) {
+		for (int j = 0; j < height; j++) {
 			TGAColor c1 = get(i, j);
 			TGAColor c2 = get(width - 1 - i, j);
 			set(i, j, c2);
@@ -291,7 +291,7 @@ bool TGAImage::flip_vertically() {
 	unsigned long bytes_per_line = width * bytespp;
 	unsigned char *line = new unsigned char[bytes_per_line];
 	int half = height >> 1;
-	for (int j = 0; j<half; j++) {
+	for (int j = 0; j < half; j++) {
 		unsigned long l1 = j * bytes_per_line;
 		unsigned long l2 = (height - 1 - j)*bytes_per_line;
 		memmove((void *)line, (void *)(data + l1), bytes_per_line);
@@ -315,11 +315,11 @@ bool TGAImage::scale(int w, int h) {
 	int erry = 0;
 	unsigned long nlinebytes = w * bytespp;
 	unsigned long olinebytes = width * bytespp;
-	for (int j = 0; j<height; j++) {
+	for (int j = 0; j < height; j++) {
 		int errx = width - w;
 		int nx = -bytespp;
 		int ox = -bytespp;
-		for (int i = 0; i<width; i++) {
+		for (int i = 0; i < width; i++) {
 			ox += bytespp;
 			errx += w;
 			while (errx >= (int)width) {
