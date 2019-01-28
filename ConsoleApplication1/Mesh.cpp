@@ -156,7 +156,7 @@ struct Shader : public IShader {
 	}
 
 	virtual bool fragment(Vector3 bar, TGAColor &color) {
-		color = TGAColor(1, 1, 1, 1);
+		color = model->diffuse(Vector3(bar.y, bar.z, 0));
 		return false;
 	}
 };
@@ -194,7 +194,7 @@ void Mesh::DrawElement(Device* device) {
 			Vertex p2 = vertexBuffer[indexBuffer[i + 1]];
 			Vertex p3 = vertexBuffer[indexBuffer[i + 2]];
 
-			device->DrawPrimitive(p1, p2, p3, mvp);
+			//device->DrawPrimitive(p1, p2, p3, mvp);
 		}
 	}
 	catch (const std::exception& e) {
@@ -208,7 +208,7 @@ void Mesh::DrawArray(Device* device) {
 		Vertex p1 = vertexBuffer[i];
 		Vertex p2 = vertexBuffer[i + 1];
 		Vertex p3 = vertexBuffer[i + 2];
-		device->DrawPrimitive(p1, p2, p3, mvp);
+		//device->DrawPrimitive(p1, p2, p3, mvp);
 	}
 }
 

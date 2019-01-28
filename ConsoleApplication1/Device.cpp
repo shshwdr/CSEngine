@@ -10,6 +10,7 @@
 
 Device::Device() {}
 Device::~Device() {}
+
 void Device::InitDevice(HDC hdc, int w, int h) {
 	screenHDC = hdc;
 	deviceWidth = w;
@@ -36,7 +37,7 @@ void Device::Clear() {
 
 
 
-void Device::DrawLine(Vertex v0, Vertex v1)
+void Device::DrawLine(Vertex v0, Vertex v1,IShader& shader)
 {
 	//Bresenham with division
 	//e = old_e - 0.5  we only need to check e > 0
@@ -71,9 +72,9 @@ void Device::DrawLine(Vertex v0, Vertex v1)
 			float u = Vertex::LerpFloat(v0.u, v1.u, t);
 			float v = Vertex::LerpFloat(v0.v, v1.v, t);
 			float intense = Vertex::LerpFloat(v0.intense, v1.intense, t);
-			TGAColor color = model->diffuse(Vector3(u*z, v*z, 0));
+			TGAColor color;
+			shader.fragment(Vector3(0, u*z, v*z), color);
 			Color c = Color(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, 1);
-
 			//Color c = tex->Sample(u*z, v*z);
 			//Color light = v0.color;
 			//c = Color::WHITE();
@@ -97,7 +98,7 @@ bool Device::ZTestAndWrite(int x, int y, float depth) {
 
 
 
-void Device::DrawTopFlatTriangle(Vertex v0, Vertex v1, Vertex v2) {
+void Device::DrawTopFlatTriangle(Vertex v0, Vertex v1, Vertex v2,IShader& shader) {
 	float x0 = v0.pos.x;
 	float y0 = v0.pos.y;
 	float x1 = v1.pos.x;
@@ -114,11 +115,11 @@ void Device::DrawTopFlatTriangle(Vertex v0, Vertex v1, Vertex v2) {
 		float xr = (x0 - x2)*(y - y2) / (y0 - y2) + x2;
 		Vertex vr(Vector3(xr, y, 0), Color::None(), 0, 0);
 		vr.LerpVertexData(v0, v2, t);
-		DrawLine(vl, vr);
+		DrawLine(vl, vr,shader);
 	}
 }
 
-void Device::DrawBottomFlatTriangle(Vertex v0, Vertex v1, Vertex v2) {
+void Device::DrawBottomFlatTriangle(Vertex v0, Vertex v1, Vertex v2, IShader& shader) {
 	float x0 = v0.pos.x;
 	float y0 = v0.pos.y;
 	float x1 = v1.pos.x;
@@ -135,12 +136,12 @@ void Device::DrawBottomFlatTriangle(Vertex v0, Vertex v1, Vertex v2) {
 		float xr = (x2 - x0)*(y - y0) / (y2 - y0) + x0;
 		Vertex vr(Vector3(xr, y, 0), Color::None(), 0, 0);
 		vr.LerpVertexData(v0, v2, t);
-		DrawLine(vl, vr);
+		DrawLine(vl, vr,shader);
 	}
 }
 
 
-void Device::RasterizeTriangle(Vertex v0, Vertex v1, Vertex v2) {
+void Device::RasterizeTriangle(Vertex v0, Vertex v1, Vertex v2, IShader& shader) {
 	//make triangle anti-clockwise
 	if (v0.pos.y > v2.pos.y) {
 		std::swap(v0, v2);
@@ -164,10 +165,10 @@ void Device::RasterizeTriangle(Vertex v0, Vertex v1, Vertex v2) {
 		return;
 	}
 	if (y0 == y1) {
-		DrawTopFlatTriangle(v0, v1, v2);
+		DrawTopFlatTriangle(v0, v1, v2,shader);
 	}
 	else if (y1 == y2) {
-		DrawBottomFlatTriangle(v0, v1, v2);
+		DrawBottomFlatTriangle(v0, v1, v2,shader);
 	}
 	else {
 		float y3 = y1;
@@ -176,8 +177,8 @@ void Device::RasterizeTriangle(Vertex v0, Vertex v1, Vertex v2) {
 		Vertex v3(Vector3(x3, y3, 0), Color::None(), 0, 0);
 		float t = (y3 - y0) / (y2 - y0);
 		v3.LerpVertexData(v0, v2, t);
-		DrawBottomFlatTriangle(v0, v1, v3);
-		DrawTopFlatTriangle(v3, v1, v2);
+		DrawBottomFlatTriangle(v0, v1, v3,shader);
+		DrawTopFlatTriangle(v3, v1, v2,shader);
 	}
 }
 
@@ -295,7 +296,9 @@ Matrix Device::GetMVPMatrix() {
 	return worldM * cameraM*projM;
 }
 
+
 void Device::DrawPrimitive(IShader &shader, Vertex v[3]) {
+	shader = shader;
 	Vertex v1  = v[0];
 	Vertex v2 = v[1];
 	Vertex v3 = v[2];
@@ -309,30 +312,30 @@ void Device::DrawPrimitive(IShader &shader, Vertex v[3]) {
 	PrepareRasterization(v1);
 	PrepareRasterization(v2);
 	PrepareRasterization(v3);
-	RasterizeTriangle(v1, v2, v3);
+	RasterizeTriangle(v1, v2, v3,shader);
 }
 
-void Device::DrawPrimitive(Vertex v1, Vertex v2, Vertex v3, const Matrix& mvp) {
-
-	v1.pos = v1.pos*mvp;
-	v2.pos = v2.pos*mvp;
-	v3.pos = v3.pos*mvp;
-	v1.norm = Vector3::Normalize(v1.norm*mvp);
-	v2.norm = Vector3::Normalize(v2.norm*mvp);
-	v3.norm = Vector3::Normalize(v3.norm*mvp);
-	//todo: bug the model looks funny when light is not this
-	Vector3 light_dir(0, 0, 1);
-	//todo: what is this base??? when it is one it is hard to see the the light and dark effect
-	float base = 3;
-	v1.intense = 1 - (1 - Vector3::Dot(v1.norm, light_dir))*base;
-	v2.intense = 1 - (1 - Vector3::Dot(v2.norm, light_dir))*base;
-	v3.intense = 1 - (1 - Vector3::Dot(v3.norm, light_dir))*base;
-	PrepareRasterization(v1);
-	PrepareRasterization(v2);
-	PrepareRasterization(v3);
-	RasterizeTriangle(v1, v2, v3);
-
-}
+//void Device::DrawPrimitive(Vertex v1, Vertex v2, Vertex v3, const Matrix& mvp) {
+//
+//	v1.pos = v1.pos*mvp;
+//	v2.pos = v2.pos*mvp;
+//	v3.pos = v3.pos*mvp;
+//	v1.norm = Vector3::Normalize(v1.norm*mvp);
+//	v2.norm = Vector3::Normalize(v2.norm*mvp);
+//	v3.norm = Vector3::Normalize(v3.norm*mvp);
+//	//todo: bug the model looks funny when light is not this
+//	Vector3 light_dir(0, 0, 1);
+//	//todo: what is this base??? when it is one it is hard to see the the light and dark effect
+//	float base = 3;
+//	v1.intense = 1 - (1 - Vector3::Dot(v1.norm, light_dir))*base;
+//	v2.intense = 1 - (1 - Vector3::Dot(v2.norm, light_dir))*base;
+//	v3.intense = 1 - (1 - Vector3::Dot(v3.norm, light_dir))*base;
+//	PrepareRasterization(v1);
+//	PrepareRasterization(v2);
+//	PrepareRasterization(v3);
+//	RasterizeTriangle(v1, v2, v3);
+//
+//}
 
 inline void Device::PrepareRasterization(Vertex& vertex)
 {
