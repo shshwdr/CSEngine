@@ -11,6 +11,14 @@
 //reference:
 //https://github.com/ssloy/tinyrenderer/wiki
 //https://blog.csdn.net/puppet_master/article/details/80317178
+
+
+struct IShader {
+	virtual ~IShader();
+	virtual Vector3 vertex(int iface, int nthvert) = 0;
+	virtual bool fragment(Vector3 bar, TGAColor &color) = 0;
+};
+
 class Device
 {
 private:
@@ -59,6 +67,8 @@ public:
 	Vector3 GetScreenCoord(const Vector3& v);
 	Matrix GetMVPMatrix();
 	void DrawPrimitive(Vertex v1, Vertex v2, Vertex v3, const Matrix & mvp);
+	void DrawPrimitive(IShader &shader, Vertex v[3]);
 	void PrepareRasterization(Vertex & vertex);
 	//inline bool SimpleCVVCullCheck(const Vertex& vertex) { return true; }
 };
+

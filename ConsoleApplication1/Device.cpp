@@ -295,7 +295,25 @@ Matrix Device::GetMVPMatrix() {
 	return worldM * cameraM*projM;
 }
 
+void Device::DrawPrimitive(IShader &shader, Vertex v[3]) {
+	Vertex v1  = v[0];
+	Vertex v2 = v[1];
+	Vertex v3 = v[2];
+	//todo: bug the model looks funny when light is not this
+	Vector3 light_dir(0, 0, 1);
+	//todo: what is this base??? when it is one it is hard to see the the light and dark effect
+	float base = 3;
+	v1.intense = 1 - (1 - Vector3::Dot(v1.norm, light_dir))*base;
+	v2.intense = 1 - (1 - Vector3::Dot(v2.norm, light_dir))*base;
+	v3.intense = 1 - (1 - Vector3::Dot(v3.norm, light_dir))*base;
+	PrepareRasterization(v1);
+	PrepareRasterization(v2);
+	PrepareRasterization(v3);
+	RasterizeTriangle(v1, v2, v3);
+}
+
 void Device::DrawPrimitive(Vertex v1, Vertex v2, Vertex v3, const Matrix& mvp) {
+
 	v1.pos = v1.pos*mvp;
 	v2.pos = v2.pos*mvp;
 	v3.pos = v3.pos*mvp;

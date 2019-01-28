@@ -109,33 +109,75 @@ Mesh* Mesh::CreateCube()
 }
 void Mesh::DrawMesh(Device* device) {
 	if (indexBuffer.size() > 0) {
-		DrawElement(device);
+		//DrawElement(device);
 	}
 	else if (model) {
 		DrawFaces(device);
 	}
 	else {
-		DrawArray(device);
+		//DrawArray(device);
 	}
 }
 
+IShader::~IShader() {}
+
+Matrix mvp;
+struct Shader : public IShader {
+	Model *model;
+
+	Vertex v[3];
+	//Matrix varying_uv;  // triangle uv coordinates, written by the vertex shader, read by the fragment shader
+	//Matrix varying_tri; // triangle coordinates (clip coordinates), written by VS, read by FS
+	//Matrix varying_nrm; // normal per vertex to be interpolated by FS
+	//Matrix ndc_tri;     // triangle in normalized device coordinates
+
+	virtual Vector3 vertex(int iface, int nthvert) {
+
+
+		//v1.pos = v1.pos*mvp;
+		//v2.pos = v2.pos*mvp;
+		//v3.pos = v3.pos*mvp;
+		//v1.norm = Vector3::Normalize(v1.norm*mvp);
+		//v2.norm = Vector3::Normalize(v2.norm*mvp);
+		//v3.norm = Vector3::Normalize(v3.norm*mvp);
+
+		//get info of j-th vector on i-th face
+		Vector3 v1 = model->getUV(iface, nthvert);
+		Vector3 norm = model->getNorm(iface, nthvert);
+		Vertex p1(model->getVertice(iface, nthvert)*mvp, Color::None(), v1.x, v1.y, Vector3::Normalize(model->getNorm(iface, nthvert)*mvp));
+		v[nthvert] = p1;
+		return v1;
+		//varying_uv.set_col(nthvert, model->uv(iface, nthvert));
+		//varying_nrm.set_col(nthvert, proj<3>((Projection*ModelView).invert_transpose()*embed<4>(model->normal(iface, nthvert), 0.f)));
+		//Vec4f gl_Vertex = Projection * ModelView*embed<4>(model->vert(iface, nthvert));
+		//varying_tri.set_col(nthvert, gl_Vertex);
+		//ndc_tri.set_col(nthvert, proj<3>(gl_Vertex / gl_Vertex[3]));
+		//return gl_Vertex;
+	}
+
+	virtual bool fragment(Vector3 bar, TGAColor &color) {
+		color = TGAColor(1, 1, 1, 1);
+		return false;
+	}
+};
+
+
 void Mesh::DrawFaces(Device* device) {
-	Matrix mvp = device->GetMVPMatrix();
+	mvp = device->GetMVPMatrix();
 	device->model = model;
 	try {
+		Shader shader;
+		shader.model = model;
 		for (int i = 0;i < model->faceCount() / 3;i += 1) {
-			Vertex v[3];
 			for (int j = 0;j < 3;j++) {
-				//get info of j-th vector on i-th face
-				Vector3 v1 = model->getUV(i, j);
-				Vector3 norm = model->getNorm(i, j);
-				Vertex p1(model->getVertice(i, j), Color::None(), v1.x, v1.y, model->getNorm(i, j));
-				v[j] = p1;
+				//vertex shader
+				shader.vertex(i, j);
+
 			}
 			//Vertex p2 = vertexBuffer[faceBuffer[i + 1].x];
 			//Vertex p3 = vertexBuffer[faceBuffer[i + 2].x];
 
-			device->DrawPrimitive(v[0], v[1], v[2], mvp);
+			device->DrawPrimitive(shader,shader.v);
 		}
 	}
 	catch (const std::exception& e) {
@@ -169,3 +211,5 @@ void Mesh::DrawArray(Device* device) {
 		device->DrawPrimitive(p1, p2, p3, mvp);
 	}
 }
+
+
