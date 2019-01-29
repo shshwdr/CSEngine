@@ -72,6 +72,26 @@ void Device::DrawLine(Vertex v0, Vertex v1,IShader& shader)
 			float u = Vertex::LerpFloat(v0.u, v1.u, t);
 			float v = Vertex::LerpFloat(v0.v, v1.v, t);
 			float intense = Vertex::LerpFloat(v0.intense, v1.intense, t);
+
+			if (intense > 0.85) {
+				intense = 1;
+			}
+			else if (intense > 0.6) {
+				intense = 0.8;
+			}
+			else if (intense > 0.45) {
+				intense = 0.6;
+			}
+			else if (intense > 0.3) {
+				intense = 0.45;
+			}
+			else if (intense > 0.15) {
+				intense = 0.3;
+			}
+			else {
+				intense = 0;
+			}
+
 			TGAColor color;
 			shader.fragment(Vector3(0, u*z, v*z), color);
 			Color c = Color(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, 1);
