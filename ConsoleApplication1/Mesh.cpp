@@ -155,18 +155,68 @@ struct Shader : public IShader {
 		//return gl_Vertex;
 	}
 
-	virtual bool fragment(Vector3 bar, TGAColor &color) {
-		color = model->diffuse(Vector3(bar.y, bar.z, 0));
+	virtual bool fragment(Vector3 bar, Color &color) {
+		float intense = bar.x;
+
+		//if (intense > 0.85) {
+		//	intense = 1;
+		//}
+		//else if (intense > 0.6) {
+		//	intense = 0.8;
+		//}
+		//else if (intense > 0.45) {
+		//	intense = 0.6;
+		//}
+		//else if (intense > 0.3) {
+		//	intense = 0.45;
+		//}
+		//else if (intense > 0.15) {
+		//	intense = 0.3;
+		//}
+		//else {
+		//	intense = 0;
+		//}
+		TGAColor c = model->diffuse(Vector3(bar.y, bar.z, 0));
+		color = Color(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, 1) * intense;
 		return false;
 	}
 };
+
+struct ToonShader :Shader {
+	virtual bool fragment(Vector3 bar, Color &color) {
+		float intense = bar.x;
+
+		if (intense > 0.85) {
+			intense = 1;
+		}
+		else if (intense > 0.6) {
+			intense = 0.8;
+		}
+		else if (intense > 0.45) {
+			intense = 0.6;
+		}
+		else if (intense > 0.3) {
+			intense = 0.45;
+		}
+		else if (intense > 0.15) {
+			intense = 0.3;
+		}
+		else {
+			intense = 0;
+		}
+		TGAColor c = model->diffuse(Vector3(bar.y, bar.z, 0));
+		color = Color(0.8, 0.8, 0, 1) * intense;
+		return false;
+	}
+};
+
 
 
 void Mesh::DrawFaces(Device* device) {
 	mvp = device->GetMVPMatrix();
 	device->model = model;
 	try {
-		Shader shader;
+		ToonShader shader;
 		shader.model = model;
 		for (int i = 0;i < model->faceCount() / 3;i += 1) {
 			for (int j = 0;j < 3;j++) {

@@ -16,7 +16,7 @@
 struct IShader {
 	virtual ~IShader();
 	virtual Vector3 vertex(int iface, int nthvert) = 0;
-	virtual bool fragment(Vector3 bar, TGAColor &color) = 0;
+	virtual bool fragment(Vector3 bar, Color &color) = 0;
 };
 
 class Device
